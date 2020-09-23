@@ -2,6 +2,7 @@ package app
 
 import (
 	"encoding/json"
+	"github.com/dharani/x/dharani"
 	"io"
 	"os"
 
@@ -53,6 +54,9 @@ var (
 		ibc.AppModuleBasic{},
 		transfer.AppModuleBasic{},
 
+		dharani.AppModuleBasic{},
+
+
 		// this line is used by starport scaffolding # 2
 	)
 
@@ -97,6 +101,7 @@ type NewApp struct {
 	paramsKeeper     params.Keeper
 	ibcKeeper        *ibc.Keeper
 	transferKeeper   transfer.Keeper
+	dharaniKeeper    dharani.Keeper
 
 	// this line is used by starport scaffolding # 3
 
@@ -134,6 +139,8 @@ func NewInitApp(
 		transfer.StoreKey,
 		capability.StoreKey,
 
+		dharani.StoreKey,
+
 		// this line is used by starport scaffolding # 5
 
 	)
@@ -156,6 +163,8 @@ func NewInitApp(
 	app.subspaces[staking.ModuleName] = app.paramsKeeper.Subspace(staking.DefaultParamspace)
 	app.subspaces[distr.ModuleName] = app.paramsKeeper.Subspace(distr.DefaultParamspace)
 	app.subspaces[slashing.ModuleName] = app.paramsKeeper.Subspace(slashing.DefaultParamspace)
+
+	app.subspaces[dharani.ModuleName] = app.paramsKeeper.Subspace(dharani.DefaultParamspace)
 
 	bApp.SetParamStore(app.paramsKeeper.Subspace(bam.Paramspace).WithKeyTable(std.ConsensusParamsKeyTable()))
 
@@ -224,6 +233,8 @@ func NewInitApp(
 		scopedTransferKeeper,
 	)
 
+	app.dharaniKeeper = dharani.NewKeeper(app.bankKeeper, app.cdc, keys[dharani.StoreKey])
+
 	transferModule := transfer.NewAppModule(app.transferKeeper)
 
 	// this line is used by starport scaffolding # 7
@@ -252,6 +263,8 @@ func NewInitApp(
 		ibc.NewAppModule(app.ibcKeeper),
 		params.NewAppModule(app.paramsKeeper),
 
+		dharani.NewAppModule(app.dharaniKeeper, app.bankKeeper),
+
 		transferModule,
 		// this line is used by starport scaffolding # 9
 
@@ -276,6 +289,8 @@ func NewInitApp(
 		ibc.ModuleName,
 		genutil.ModuleName,
 		transfer.ModuleName,
+
+		dharani.ModuleName,
 
 		// this line is used by starport scaffolding # 10
 

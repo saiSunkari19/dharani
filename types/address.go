@@ -3,7 +3,7 @@ package types
 const (
 	DefaultStakeDenom = "cent"
 
-	Bech32MainPrefix = "boomi"
+	Bech32MainPrefix = "dharani"
 
 	PrefixAccount   = "acc"
 	PrefixValidator = "val"

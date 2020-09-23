@@ -15,11 +15,11 @@ fi
 
 # Build genesis file incl account for passed address
 coins="1000000000000000cent,1000000000000000mdm"
-Dharanid init --chain-id $CHAINID $CHAINID --stake-denom cent
-Dharanicli keys add validator
-Dharanid add-genesis-account validator $coins
-Dharanid add-genesis-account $GENACCT $coins
-Dharanid gentx --name validator --amount 100000000cent
-Dharanid collect-gentxs
+dharanid init --chain-id $CHAINID $CHAINID --stake-denom cent
+dharanicli keys add validator
+dharanid add-genesis-account validator $coins
+dharanid add-genesis-account $GENACCT $coins
+dharanid gentx --name validator --amount 100000000cent
+dharanid collect-gentxs
 
-#Dharanid start --pruning=nothing
+#dharanid start --pruning=nothing
