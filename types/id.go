@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	PropertyIDPrefix = "node"
+	PropertyIDPrefix = "prop"
 )
 
 type ID interface {
