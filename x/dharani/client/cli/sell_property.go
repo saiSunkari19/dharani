@@ -32,7 +32,7 @@ func CommandSellProperty(cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 
-			msg := types.NewMsgSellProperty(ctx.FromAddress, propertyID, area, cost)
+			msg := types.NewMsgSellProperty(ctx.FromAddress, string(propertyID), area, cost)
 
 			return client.GenerateOrBroadcastMsgs(ctx, txb, []sdk.Msg{msg})
 		},

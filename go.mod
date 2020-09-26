@@ -1,6 +1,6 @@
 module github.com/dharani
 
-go 1.13
+go 1.15
 
 require (
 	github.com/cosmos/cosmos-sdk v0.34.4-0.20200530180557-ba70f4d4dc2e

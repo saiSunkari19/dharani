@@ -5,7 +5,6 @@ import (
 	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	types2 "github.com/dharani/types"
 	"github.com/dharani/x/dharani/types"
 )
 
@@ -29,21 +28,20 @@ func NewHandler(k Keeper) sdk.Handler {
 
 func handlerAddProperty(ctx sdk.Context, k Keeper, msg types.MsgAddProperty) (*sdk.Result, error) {
 	pc := k.GetPropertyCount(ctx)
-	pc = pc + 1
 
-	id := types2.NewPropertyID(pc)
-
+	id := GetPropertyID(pc)
 	property := types.NewProperty(id, msg.Area, msg.From, msg.Location,
-		types.TypeOwn, nil, sdk.Coin{})
+		types.TypeOwn, "", sdk.Coin{})
+	fmt.Println("Property Id: ", id)
 
 	k.SetProperty(ctx, id, property)
-	k.SetPropertyCount(ctx, pc)
+	k.SetPropertyCount(ctx, pc+1)
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			EventTypeMsgAddProperty,
 			sdk.NewAttribute(AttributeKeyFromAddress, property.Owner.String()),
-			sdk.NewAttribute(AttributeKeyPropertyID, property.ID.String()),
+			sdk.NewAttribute(AttributeKeyPropertyID, property.ID),
 		),
 	)
 
@@ -64,9 +62,7 @@ func handlerSellProperty(ctx sdk.Context, k Keeper, msg types.MsgSellProperty) (
 	}
 
 	pc := k.GetPropertyCount(ctx)
-	pc = pc + 1
-
-	id := types2.NewPropertyID(pc)
+	id := GetPropertyID(pc)
 
 	sellProperty := types.NewProperty(id, property.Area, property.Owner,
 		property.Location, types.TypeSell, property.ID, msg.Cost)
@@ -75,13 +71,13 @@ func handlerSellProperty(ctx sdk.Context, k Keeper, msg types.MsgSellProperty) (
 
 	k.SetProperty(ctx, property.ID, *property)
 	k.SetProperty(ctx, id, sellProperty)
-	k.SetPropertyCount(ctx, pc)
+	k.SetPropertyCount(ctx, pc+1)
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			EventTypeMsgSellProperty,
 			sdk.NewAttribute(AttributeKeyFromAddress, property.Owner.String()),
-			sdk.NewAttribute(AttributeKeyPropertyID, id.String()),
+			sdk.NewAttribute(AttributeKeyPropertyID, id),
 		),
 	)
 
@@ -89,7 +85,7 @@ func handlerSellProperty(ctx sdk.Context, k Keeper, msg types.MsgSellProperty) (
 }
 
 func handlerBuyProperty(ctx sdk.Context, k Keeper, msg types.MsgBuyProperty) (*sdk.Result, error) {
-	property := k.GetProperty(ctx, msg.PropID)
+	property := k.GetProperty(ctx, string(msg.PropID))
 
 	if property == nil {
 		return nil, errors.New("invalid property")
@@ -111,9 +107,8 @@ func handlerBuyProperty(ctx sdk.Context, k Keeper, msg types.MsgBuyProperty) (*s
 	}
 
 	pc := k.GetPropertyCount(ctx)
+	id := GetPropertyID(pc)
 	pc = pc + 1
-
-	id := types2.NewPropertyID(pc)
 
 	buyProperty := types.NewProperty(id, property.Area, msg.From, property.Location,
 		types.TypeOwn, property.ID, sdk.Coin{})
@@ -125,7 +120,7 @@ func handlerBuyProperty(ctx sdk.Context, k Keeper, msg types.MsgBuyProperty) (*s
 		sdk.NewEvent(
 			EventTypeMsgBuyProperty,
 			sdk.NewAttribute(AttributeKeyFromAddress, buyProperty.Owner.String()),
-			sdk.NewAttribute(AttributeKeyPropertyID, buyProperty.ID.String()),
+			sdk.NewAttribute(AttributeKeyPropertyID, buyProperty.ID),
 		),
 	)
 
