@@ -1,22 +1,23 @@
 package types
 
 import (
+	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/dharani/types"
 )
 
 type Property struct {
-	ID          types.PropertyID
+	ID          string
 	Area        int64
 	Owner       sdk.AccAddress
 	Location    string
 	Type        string
-	RefProperty types.PropertyID
+	RefProperty string
 	Cost        sdk.Coin
 }
 
-func NewProperty(id types.PropertyID, area int64, owner sdk.AccAddress, location string,
-	_type string, refPropID types.PropertyID, cost sdk.Coin) Property {
+func NewProperty(id string, area int64, owner sdk.AccAddress, location string,
+	_type string, refPropID string, cost sdk.Coin) Property {
+	fmt.Println("ref prop id: ", refPropID)
 	return Property{
 		ID:          id,
 		Area:        area,

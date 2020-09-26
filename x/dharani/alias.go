@@ -26,6 +26,7 @@ var (
 	ValidateGenesis     = types.ValidateGenesis
 	// TODO: Fill out function aliases
 
+	GetPropertyID = types.GetPropertyID
 	// variable aliases
 	ModuleCdc = types.ModuleCdc
 	// TODO: Fill out variable aliases

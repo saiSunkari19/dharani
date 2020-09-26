@@ -3,6 +3,7 @@ package types
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/dharani/types"
+	"strconv"
 )
 
 const (
@@ -31,6 +32,10 @@ func GetPropertyCountKey(c uint64) []byte {
 	return append(PropertyCountKey, sdk.Uint64ToBigEndian(c)...)
 }
 
-func GetPropertyKey(id types.PropertyID) []byte {
-	return append(PropertyKey, id.Bytes()...)
+func GetPropertyKey(id []byte) []byte {
+	return append(PropertyKey, id...)
+}
+
+func GetPropertyID(count uint64) string {
+	return types.PropertyIDPrefix + strconv.Itoa(int(count))
 }

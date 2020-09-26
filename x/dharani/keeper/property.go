@@ -1,8 +1,9 @@
 package keeper
 
 import (
+	"bytes"
+	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	types2 "github.com/dharani/types"
 	"github.com/dharani/x/dharani/types"
 )
 
@@ -25,26 +26,63 @@ func (k Keeper) GetPropertyCount(ctx sdk.Context) (count uint64) {
 	return count
 }
 
-func (k Keeper) SetProperty(ctx sdk.Context, id types2.PropertyID, property types.Property) {
+func (k Keeper) SetProperty(ctx sdk.Context, id string, property types.Property) {
 	store := ctx.KVStore(k.storeKey)
 
-	key := types.GetPropertyKey(id)
+	fmt.Println("p:", property)
+	key := types.GetPropertyKey([]byte(id))
 	value := k.cdc.MustMarshalBinaryLengthPrefixed(property)
 
 	store.Set(key, value)
 }
 
-func (k Keeper) GetProperty(ctx sdk.Context, id types2.PropertyID) (property *types.Property) {
+func (k Keeper) GetProperty(ctx sdk.Context, id string) (property *types.Property) {
 	store := ctx.KVStore(k.storeKey)
 
-	key := types.GetPropertyKey(id)
-
+	key := types.GetPropertyKey([]byte(id))
+	fmt.Println("Property Key: ", key)
 	value := store.Get(key)
 	if value == nil {
 		return nil
 	}
 
 	k.cdc.MustUnmarshalBinaryLengthPrefixed(value, &property)
-	
+
 	return property
+}
+
+func (k Keeper) GetAllProperties(ctx sdk.Context) []types.Property {
+	store := ctx.KVStore(k.storeKey)
+
+	iterator := sdk.KVStorePrefixIterator(store, types.PropertyKey)
+	defer iterator.Close()
+
+	var properties []types.Property
+	for ; iterator.Valid(); iterator.Next() {
+		var property types.Property
+		value := iterator.Value()
+		k.cdc.MustUnmarshalBinaryLengthPrefixed(value, &property)
+		fmt.Println("Prop: ", property)
+		properties = append(properties, property)
+	}
+
+	return properties
+}
+
+func (k Keeper) GetPropertyByAddress(ctx sdk.Context, addr sdk.AccAddress) []types.Property {
+	store := ctx.KVStore(k.storeKey)
+
+	iterator := sdk.KVStoreReversePrefixIterator(store, types.PropertyKey)
+	defer iterator.Close()
+
+	var properties []types.Property
+	for ; iterator.Valid(); iterator.Next() {
+		var property types.Property
+		k.cdc.MustUnmarshalBinaryLengthPrefixed(iterator.Value(), property)
+		if bytes.Compare(property.Owner.Bytes(), addr.Bytes()) == 0 {
+			properties = append(properties, property)
+		}
+	}
+
+	return properties
 }

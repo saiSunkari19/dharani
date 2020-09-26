@@ -2,6 +2,8 @@ package cli
 
 import (
 	"fmt"
+	"github.com/cosmos/cosmos-sdk/client/context"
+
 	// "strings"
 
 	"github.com/spf13/cobra"
@@ -28,10 +30,75 @@ func GetQueryCmd(queryRoute string, cdc *codec.Codec) *cobra.Command {
 	}
 
 	dharaniQueryCmd.AddCommand(
-		flags.GetCommands(
-      // this line is used by starport scaffolding
-		)...,
+		GetPropertyByID(cdc),
+		GetAllProperties(cdc),
+		GetPropertiesByAddress(cdc),
 	)
 
 	return dharaniQueryCmd
+}
+
+func GetPropertyByID(cdc *codec.Codec) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "query-property [propertyID]",
+		Short: "query property by its ID",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cliCtx := context.NewCLIContext().WithCodec(cdc)
+
+			bz, _, err := cliCtx.QueryWithData(fmt.Sprintf("/custom/%s/%s/%s", types.QuerierRoute, types.QueryProperty, args[0]), nil)
+			if err != nil {
+				return err
+			}
+
+			var property types.Property
+			cdc.MustUnmarshalJSON(bz, &property)
+			return cliCtx.PrintOutput(property)
+		},
+	}
+
+	return flags.GetCommands(cmd)[0]
+}
+
+func GetAllProperties(cdc *codec.Codec) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "query-all-properties",
+		Short: "query all projects",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cliCtx := context.NewCLIContext().WithCodec(cdc)
+
+			bz, _, err := cliCtx.QueryWithData(fmt.Sprintf("/custom/%s/%s/%s", types.QuerierRoute, types.QueryAllProperties, nil), nil)
+			if err != nil {
+				return err
+			}
+
+			var properties []types.Property
+			cdc.MustUnmarshalJSON(bz, &properties)
+			return cliCtx.PrintOutput(properties)
+		},
+	}
+
+	return flags.GetCommands(cmd)[0]
+}
+
+func GetPropertiesByAddress(cdc *codec.Codec) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "query-properties-by-address [address]",
+		Short: "query properties by address",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cliCtx := context.NewCLIContext().WithCodec(cdc)
+
+			bz, _, err := cliCtx.QueryWithData(fmt.Sprintf("/custom/%s/%s/%s", types.QuerierRoute, types.QueryPropertyByAddr, args[0]), nil)
+			if err != nil {
+				return err
+			}
+
+			var properties []types.Property
+			cdc.MustUnmarshalJSON(bz, &properties)
+			return cliCtx.PrintOutput(properties)
+		},
+	}
+
+	return flags.GetCommands(cmd)[0]
 }

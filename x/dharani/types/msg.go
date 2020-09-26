@@ -61,7 +61,7 @@ var _ sdk.Msg = (*MsgSellProperty)(nil)
 
 type MsgSellProperty struct {
 	From   sdk.AccAddress
-	PropID types.PropertyID
+	PropID string
 	Area   int64
 	Cost   sdk.Coin
 }
@@ -101,7 +101,7 @@ func (msg MsgSellProperty) Route() string {
 	return RouterKey
 }
 
-func NewMsgSellProperty(from sdk.AccAddress, id types.PropertyID, area int64, cost sdk.Coin) *MsgSellProperty {
+func NewMsgSellProperty(from sdk.AccAddress, id string, area int64, cost sdk.Coin) *MsgSellProperty {
 	return &MsgSellProperty{
 		From:   from,
 		Area:   area,
