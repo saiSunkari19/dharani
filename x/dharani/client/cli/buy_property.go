@@ -21,27 +21,20 @@ func CommandBuyProperty(cdc *codec.Codec) *cobra.Command {
 			ctx := context.NewCLIContext().WithCodec(cdc)
 
 			_propertyID := viper.GetString(flagPropertyID)
-			coin := viper.GetString(flagCost)
 			propertyID, err := types2.NewPropertyIDFromString(_propertyID)
 			if err != nil {
 				return err
 			}
-			cost, err := sdk.ParseCoin(coin)
-			if err != nil {
-				return err
-			}
 
-			msg := types.NewMsgBuyProperty(ctx.FromAddress, propertyID, cost)
+			msg := types.NewMsgBuyProperty(ctx.FromAddress, propertyID)
 
 			return client.GenerateOrBroadcastMsgs(ctx, txb, []sdk.Msg{msg})
 		},
 	}
 
 	cmd.Flags().String(flagPropertyID, "", "property-id")
-	cmd.Flags().String(flagCost, "", "cost")
 
 	_ = cmd.MarkFlagRequired(flagPropertyID)
-	_ = cmd.MarkFlagRequired(flagCost)
 
 	return cmd
 }

@@ -8,7 +8,6 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 
 	// "github.com/cosmos/cosmos-sdk/client/context"
@@ -22,11 +21,8 @@ import (
 func GetQueryCmd(queryRoute string, cdc *codec.Codec) *cobra.Command {
 	// Group dharani queries under a subcommand
 	dharaniQueryCmd := &cobra.Command{
-		Use:                        types.ModuleName,
-		Short:                      fmt.Sprintf("Querying commands for the %s module", types.ModuleName),
-		DisableFlagParsing:         true,
-		SuggestionsMinimumDistance: 2,
-		RunE:                       client.ValidateCmd,
+		Use:                        "property",
+		Short:                      "property query sub commands",
 	}
 
 	dharaniQueryCmd.AddCommand(
@@ -40,7 +36,7 @@ func GetQueryCmd(queryRoute string, cdc *codec.Codec) *cobra.Command {
 
 func GetPropertyByID(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "query-property [propertyID]",
+		Use:   "id [propertyID]",
 		Short: "query property by its ID",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -62,8 +58,8 @@ func GetPropertyByID(cdc *codec.Codec) *cobra.Command {
 
 func GetAllProperties(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "query-all-properties",
-		Short: "query all projects",
+		Use:   "all",
+		Short: "query all properties",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 
@@ -83,7 +79,7 @@ func GetAllProperties(cdc *codec.Codec) *cobra.Command {
 
 func GetPropertiesByAddress(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "query-properties-by-address [address]",
+		Use:   "address [address]",
 		Short: "query properties by address",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
