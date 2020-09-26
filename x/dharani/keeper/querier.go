@@ -1,7 +1,6 @@
 package keeper
 
 import (
-	"fmt"
 	"github.com/dharani/x/dharani/types"
 	"github.com/tendermint/go-amino"
 
@@ -33,16 +32,11 @@ func NewQuerier(k Keeper) sdk.Querier {
 }
 
 func queryProperty(ctx sdk.Context, path []string, k Keeper) ([]byte, error) {
-	fmt.Println("{{{{{{{ property id: ", path[0])
-	//propertyId, err := types2.NewPropertyIDFromString(path[0])
-	//if err != nil {
-	//	return nil, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, err.Error())
-	//}
 	property := k.GetProperty(ctx, path[0])
 	if property == nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "No property found with propertyID")
 	}
-	fmt.Println("Property: ", property)
+
 	bz, err := amino.MarshalJSONIndent(property, "",  " ")
 	if err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
