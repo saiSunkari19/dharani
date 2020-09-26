@@ -67,13 +67,13 @@ func (k Keeper) GetAllProperties(ctx sdk.Context) []types.Property {
 func (k Keeper) GetPropertyByAddress(ctx sdk.Context, addr sdk.AccAddress) []types.Property {
 	store := ctx.KVStore(k.storeKey)
 
-	iterator := sdk.KVStoreReversePrefixIterator(store, types.PropertyKey)
+	iterator := sdk.KVStorePrefixIterator(store, types.PropertyKey)
 	defer iterator.Close()
 
 	var properties []types.Property
 	for ; iterator.Valid(); iterator.Next() {
 		var property types.Property
-		k.cdc.MustUnmarshalBinaryLengthPrefixed(iterator.Value(), property)
+		k.cdc.MustUnmarshalBinaryLengthPrefixed(iterator.Value(), &property)
 		if bytes.Compare(property.Owner.Bytes(), addr.Bytes()) == 0 {
 			properties = append(properties, property)
 		}
