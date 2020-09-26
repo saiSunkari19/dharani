@@ -2,7 +2,6 @@ package keeper
 
 import (
 	"bytes"
-	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/dharani/x/dharani/types"
 )
@@ -29,7 +28,6 @@ func (k Keeper) GetPropertyCount(ctx sdk.Context) (count uint64) {
 func (k Keeper) SetProperty(ctx sdk.Context, id string, property types.Property) {
 	store := ctx.KVStore(k.storeKey)
 
-	fmt.Println("p:", property)
 	key := types.GetPropertyKey([]byte(id))
 	value := k.cdc.MustMarshalBinaryLengthPrefixed(property)
 
@@ -40,7 +38,6 @@ func (k Keeper) GetProperty(ctx sdk.Context, id string) (property *types.Propert
 	store := ctx.KVStore(k.storeKey)
 
 	key := types.GetPropertyKey([]byte(id))
-	fmt.Println("Property Key: ", key)
 	value := store.Get(key)
 	if value == nil {
 		return nil
@@ -60,9 +57,7 @@ func (k Keeper) GetAllProperties(ctx sdk.Context) []types.Property {
 	var properties []types.Property
 	for ; iterator.Valid(); iterator.Next() {
 		var property types.Property
-		value := iterator.Value()
-		k.cdc.MustUnmarshalBinaryLengthPrefixed(value, &property)
-		fmt.Println("Prop: ", property)
+		k.cdc.MustUnmarshalBinaryLengthPrefixed(iterator.Value(), &property)
 		properties = append(properties, property)
 	}
 
