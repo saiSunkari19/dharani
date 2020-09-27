@@ -8,6 +8,6 @@ import (
 
 // RegisterRoutes registers dharani-related REST handlers to a router
 func RegisterRoutes(cliCtx context.CLIContext, r *mux.Router) {
-	// this line is used by starport scaffolding
 	r.HandleFunc("/faucet", faucetHandler(cliCtx)).Methods("POST")
+	r.HandleFunc("/property", addPropertyHandlerFunc(cliCtx)).Methods("POST")
 }
