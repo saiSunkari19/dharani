@@ -28,8 +28,8 @@ func CommandAddProperty(cdc *codec.Codec) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().Int64(flagArea, 0, "area")
-	cmd.Flags().String(flagLocation, "", "location")
+	cmd.Flags().Int64(flagArea, 0, "area in square meters ")
+	cmd.Flags().String(flagLocation, "", "location of property")
 
 	_ = cmd.MarkFlagRequired(flagArea)
 	_ = cmd.MarkFlagRequired(flagLocation)

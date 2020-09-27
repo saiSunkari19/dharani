@@ -61,7 +61,7 @@ var _ sdk.Msg = (*MsgSellProperty)(nil)
 
 type MsgSellProperty struct {
 	From   sdk.AccAddress
-	PropID string
+	PropID types.PropertyID
 	Area   int64
 	Cost   sdk.Coin
 }
@@ -101,7 +101,7 @@ func (msg MsgSellProperty) Route() string {
 	return RouterKey
 }
 
-func NewMsgSellProperty(from sdk.AccAddress, id string, area int64, cost sdk.Coin) *MsgSellProperty {
+func NewMsgSellProperty(from sdk.AccAddress, id types.PropertyID, area int64, cost sdk.Coin) *MsgSellProperty {
 	return &MsgSellProperty{
 		From:   from,
 		Area:   area,
@@ -115,7 +115,6 @@ var _ sdk.Msg = (*MsgBuyProperty)(nil)
 type MsgBuyProperty struct {
 	From   sdk.AccAddress
 	PropID types.PropertyID
-	Cost   sdk.Coin
 }
 
 func (msg MsgBuyProperty) Type() string {
@@ -125,9 +124,6 @@ func (msg MsgBuyProperty) Type() string {
 func (msg MsgBuyProperty) ValidateBasic() error {
 	if msg.From == nil || msg.From.Empty() {
 		return ErrInvalidFromAddress
-	}
-	if msg.Cost.Amount.Int64() < 0 {
-		return ErrInvalidCost
 	}
 
 	return nil
@@ -150,10 +146,9 @@ func (msg MsgBuyProperty) Route() string {
 	return RouterKey
 }
 
-func NewMsgBuyProperty(from sdk.AccAddress, id types.PropertyID, cost sdk.Coin) *MsgBuyProperty {
+func NewMsgBuyProperty(from sdk.AccAddress, id types.PropertyID) *MsgBuyProperty {
 	return &MsgBuyProperty{
 		From:   from,
 		PropID: id,
-		Cost:   cost,
 	}
 }

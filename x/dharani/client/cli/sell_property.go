@@ -22,7 +22,7 @@ func CommandSellProperty(cdc *codec.Codec) *cobra.Command {
 
 			_propertyID := viper.GetString(flagPropertyID)
 			area := viper.GetInt64(flagArea)
-			coin := viper.GetString(flagCost)
+			coin := viper.GetString(flagPrice)
 			propertyID, err := types2.NewPropertyIDFromString(_propertyID)
 			if err != nil {
 				return err
@@ -32,19 +32,19 @@ func CommandSellProperty(cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 
-			msg := types.NewMsgSellProperty(ctx.FromAddress, string(propertyID), area, cost)
+			msg := types.NewMsgSellProperty(ctx.FromAddress, propertyID, area, cost)
 
 			return client.GenerateOrBroadcastMsgs(ctx, txb, []sdk.Msg{msg})
 		},
 	}
 
-	cmd.Flags().String(flagPropertyID, "", "property-id")
-	cmd.Flags().Int64(flagArea, 0, "area")
-	cmd.Flags().String(flagCost, "", "cost")
+	cmd.Flags().String(flagPropertyID, "", "property id")
+	cmd.Flags().Int64(flagArea, 0, "area in square meters")
+	cmd.Flags().String(flagPrice, "", "price to sell property")
 
 	_ = cmd.MarkFlagRequired(flagPropertyID)
 	_ = cmd.MarkFlagRequired(flagArea)
-	_ = cmd.MarkFlagRequired(flagCost)
+	_ = cmd.MarkFlagRequired(flagPrice)
 
 	return cmd
 }

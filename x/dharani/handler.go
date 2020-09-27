@@ -6,6 +6,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/dharani/x/dharani/types"
+	"strings"
 )
 
 // NewHandler ...
@@ -32,7 +33,6 @@ func handlerAddProperty(ctx sdk.Context, k Keeper, msg types.MsgAddProperty) (*s
 	id := GetPropertyID(pc)
 	property := types.NewProperty(id, msg.Area, msg.From, msg.Location,
 		types.TypeOwn, "", sdk.Coin{})
-	fmt.Println("Property Id: ", id)
 
 	k.SetProperty(ctx, id, property)
 	k.SetPropertyCount(ctx, pc+1)
@@ -49,7 +49,7 @@ func handlerAddProperty(ctx sdk.Context, k Keeper, msg types.MsgAddProperty) (*s
 }
 
 func handlerSellProperty(ctx sdk.Context, k Keeper, msg types.MsgSellProperty) (*sdk.Result, error) {
-	property := k.GetProperty(ctx, msg.PropID)
+	property := k.GetProperty(ctx, msg.PropID.String())
 
 	if property == nil {
 		return nil, errors.New("invalid property")
@@ -85,14 +85,17 @@ func handlerSellProperty(ctx sdk.Context, k Keeper, msg types.MsgSellProperty) (
 }
 
 func handlerBuyProperty(ctx sdk.Context, k Keeper, msg types.MsgBuyProperty) (*sdk.Result, error) {
-	property := k.GetProperty(ctx, string(msg.PropID))
+	property := k.GetProperty(ctx, msg.PropID.String())
 
 	if property == nil {
 		return nil, errors.New("invalid property")
 	}
+	if strings.Compare(property.Type, types.TypeSell) != 0 {
+		return nil, errors.New("invalid property")
+	}
 
 	bal := k.CoinKeeper.GetBalance(ctx, msg.From, property.Cost.Denom)
-	if !bal.IsLT(property.Cost) {
+	if bal.IsLT(property.Cost) {
 		return nil, errors.New("invalid account balance")
 	}
 
@@ -108,13 +111,14 @@ func handlerBuyProperty(ctx sdk.Context, k Keeper, msg types.MsgBuyProperty) (*s
 
 	pc := k.GetPropertyCount(ctx)
 	id := GetPropertyID(pc)
-	pc = pc + 1
 
 	buyProperty := types.NewProperty(id, property.Area, msg.From, property.Location,
 		types.TypeOwn, property.ID, sdk.Coin{})
 
+	property.Area = 0
+	k.SetProperty(ctx, property.ID, *property)
 	k.SetProperty(ctx, id, buyProperty)
-	k.SetPropertyCount(ctx, pc)
+	k.SetPropertyCount(ctx, pc+1)
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
