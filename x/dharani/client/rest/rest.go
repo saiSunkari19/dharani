@@ -9,5 +9,7 @@ import (
 // RegisterRoutes registers dharani-related REST handlers to a router
 func RegisterRoutes(cliCtx context.CLIContext, r *mux.Router) {
 	r.HandleFunc("/faucet", faucetHandler(cliCtx)).Methods("POST")
-	r.HandleFunc("/property", addPropertyHandlerFunc(cliCtx)).Methods("POST")
+	r.HandleFunc("/property/add", addPropertyHandlerFunc(cliCtx)).Methods("POST")
+	r.HandleFunc("/property/sell", sellPropertyHandlerFunc(cliCtx)).Methods("PUT")
+	r.HandleFunc("/property/buy", buyPropertyHandlerFunc(cliCtx)).Methods("PUT")
 }
