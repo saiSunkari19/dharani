@@ -2,17 +2,19 @@ package dharani
 
 import (
 	"encoding/json"
+	
 	"github.com/cosmos/cosmos-sdk/types/module"
-
+	
 	"github.com/gorilla/mux"
 	"github.com/spf13/cobra"
-
+	
 	abci "github.com/tendermint/tendermint/abci/types"
-
+	
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/bank"
+	
 	"github.com/dharani/x/dharani/client/cli"
 	"github.com/dharani/x/dharani/client/rest"
 )
@@ -71,11 +73,11 @@ func (AppModuleBasic) GetQueryCmd(cdc *codec.Codec) *cobra.Command {
 // AppModule implements an application module for the dharani module.
 type AppModule struct {
 	AppModuleBasic
-
+	
 	keeper     Keeper
 	coinKeeper bank.Keeper
 	// TODO: Add keepers that your application depends on
-
+	
 }
 
 // NewAppModule creates a new AppModule object

@@ -7,7 +7,7 @@ import (
 
 const (
 	// TODO: define constants that you would like exposed from your module
-
+	
 	ModuleName        = types.ModuleName
 	RouterKey         = types.RouterKey
 	StoreKey          = types.StoreKey
@@ -25,7 +25,7 @@ var (
 	DefaultGenesisState = types.DefaultGenesisState
 	ValidateGenesis     = types.ValidateGenesis
 	// TODO: Fill out function aliases
-
+	
 	GetPropertyID = types.GetPropertyID
 	// variable aliases
 	ModuleCdc = types.ModuleCdc
@@ -33,7 +33,7 @@ var (
 	EventTypeMsgAddProperty  = types.EventTypeMsgAddProperty
 	EventTypeMsgSellProperty = types.EventTypeMsgSellProperty
 	EventTypeMsgBuyProperty  = types.EventTypeMsgBuyProperty
-
+	
 	AttributeKeyFromAddress = types.AttributeKeyFromAddress
 	AttributeKeyPropertyID  = types.AttributeKeyPropertyID
 )
@@ -42,6 +42,6 @@ type (
 	Keeper       = keeper.Keeper
 	GenesisState = types.GenesisState
 	Params       = types.Params
-
+	
 	// TODO: Fill out module types
 )

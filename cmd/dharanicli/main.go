@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path"
-
+	
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/keys"
@@ -18,17 +18,18 @@ import (
 	authrest "github.com/cosmos/cosmos-sdk/x/auth/client/rest"
 	"github.com/cosmos/cosmos-sdk/x/bank"
 	bankcmd "github.com/cosmos/cosmos-sdk/x/bank/client/cli"
+	
 	dClient "github.com/dharani/client/keys"
-
+	
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-
+	
 	"github.com/tendermint/go-amino"
 	"github.com/tendermint/tendermint/libs/cli"
-
+	
 	"github.com/dharani/app"
 	"github.com/dharani/types"
-  // this line is used by starport scaffolding
+	// this line is used by starport scaffolding
 )
 
 var (
@@ -42,30 +43,29 @@ func init() {
 func main() {
 	// Configure cobra to sort commands
 	cobra.EnableCommandSorting = false
-
-
+	
 	// Read in the configuration file for the sdk
 	config := sdk.GetConfig()
 	config.SetBech32PrefixForAccount(types.Bech32PrefixAccAddr, types.Bech32PrefixAccPub)
 	config.SetBech32PrefixForValidator(types.Bech32PrefixValAddr, types.Bech32PrefixValPub)
 	config.SetBech32PrefixForConsensusNode(types.Bech32PrefixConsAddr, types.Bech32PrefixConsPub)
 	config.Seal()
-
+	
 	// TODO: setup keybase, viper object, etc. to be passed into
 	// the below functions and eliminate global vars, like we do
 	// with the cdc
-
+	
 	rootCmd := &cobra.Command{
 		Use:   "dharanicli",
 		Short: "Command line interface for interacting with dharanid",
 	}
-
+	
 	// Add --chain-id to persistent flags and mark it required
 	rootCmd.PersistentFlags().String(flags.FlagChainID, "", "Chain ID of tendermint node")
 	rootCmd.PersistentPreRunE = func(_ *cobra.Command, _ []string) error {
 		return initConfig(rootCmd)
 	}
-
+	
 	// Construct Root Command
 	rootCmd.AddCommand(
 		rpc.StatusCommand(),
@@ -80,10 +80,10 @@ func main() {
 		version.Cmd,
 		flags.NewCompletionCmd(rootCmd, true),
 	)
-
+	
 	// Add flags and prefix all env exposed with AA
 	executor := cli.PrepareMainCmd(rootCmd, "AA", app.DefaultCLIHome)
-
+	
 	err := executor.Execute()
 	if err != nil {
 		fmt.Printf("Failed executing CLI command: %s, exiting...\n", err)
@@ -97,7 +97,7 @@ func queryCmd(cdc *amino.Codec) *cobra.Command {
 		Aliases: []string{"q"},
 		Short:   "Querying subcommands",
 	}
-
+	
 	queryCmd.AddCommand(
 		authcmd.GetAccountCmd(cdc),
 		flags.LineBreak,
@@ -107,10 +107,10 @@ func queryCmd(cdc *amino.Codec) *cobra.Command {
 		authcmd.QueryTxCmd(cdc),
 		flags.LineBreak,
 	)
-
+	
 	// add modules' query commands
 	app.ModuleBasics.AddQueryCommands(queryCmd, cdc)
-
+	
 	return queryCmd
 }
 
@@ -119,7 +119,7 @@ func txCmd(cdc *amino.Codec) *cobra.Command {
 		Use:   "tx",
 		Short: "Transactions subcommands",
 	}
-
+	
 	txCmd.AddCommand(
 		bankcmd.SendTxCmd(cdc),
 		flags.LineBreak,
@@ -131,21 +131,21 @@ func txCmd(cdc *amino.Codec) *cobra.Command {
 		authcmd.GetDecodeCommand(cdc),
 		flags.LineBreak,
 	)
-
+	
 	// add modules' tx commands
 	app.ModuleBasics.AddTxCommands(txCmd, cdc)
-
+	
 	// remove auth and bank commands as they're mounted under the root tx command
 	var cmdsToRemove []*cobra.Command
-
+	
 	for _, cmd := range txCmd.Commands() {
 		if cmd.Use == auth.ModuleName || cmd.Use == bank.ModuleName {
 			cmdsToRemove = append(cmdsToRemove, cmd)
 		}
 	}
-
+	
 	txCmd.RemoveCommand(cmdsToRemove...)
-
+	
 	return txCmd
 }
 
@@ -157,7 +157,7 @@ func registerRoutes(rs *lcd.RestServer) {
 	authrest.RegisterTxRoutes(rs.CliCtx, rs.Mux)
 	dClient.RegisterTxRoutes(rs.CliCtx, rs.Mux)
 	app.ModuleBasics.RegisterRESTRoutes(rs.CliCtx, rs.Mux)
-  // this line is used by starport scaffolding # 2
+	// this line is used by starport scaffolding # 2
 }
 
 func initConfig(cmd *cobra.Command) error {
@@ -165,11 +165,11 @@ func initConfig(cmd *cobra.Command) error {
 	if err != nil {
 		return err
 	}
-
+	
 	cfgFile := path.Join(home, "config", "config.toml")
 	if _, err := os.Stat(cfgFile); err == nil {
 		viper.SetConfigFile(cfgFile)
-
+		
 		if err := viper.ReadInConfig(); err != nil {
 			return err
 		}

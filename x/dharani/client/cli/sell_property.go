@@ -6,10 +6,11 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/auth/client"
-	types2 "github.com/dharani/types"
-	"github.com/dharani/x/dharani/types"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	
+	types2 "github.com/dharani/types"
+	"github.com/dharani/x/dharani/types"
 )
 
 func CommandSellProperty(cdc *codec.Codec) *cobra.Command {
@@ -19,7 +20,7 @@ func CommandSellProperty(cdc *codec.Codec) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			txb := auth.NewTxBuilderFromCLI(nil).WithTxEncoder(client.GetTxEncoder(cdc))
 			ctx := context.NewCLIContext().WithCodec(cdc)
-
+			
 			_propertyID := viper.GetString(flagPropertyID)
 			area := viper.GetInt64(flagArea)
 			coin := viper.GetString(flagPrice)
@@ -31,20 +32,20 @@ func CommandSellProperty(cdc *codec.Codec) *cobra.Command {
 			if err != nil {
 				return err
 			}
-
+			
 			msg := types.NewMsgSellProperty(ctx.FromAddress, propertyID, area, cost)
-
+			
 			return client.GenerateOrBroadcastMsgs(ctx, txb, []sdk.Msg{msg})
 		},
 	}
-
+	
 	cmd.Flags().String(flagPropertyID, "", "property id")
 	cmd.Flags().Int64(flagArea, 0, "area in square meters")
 	cmd.Flags().String(flagPrice, "", "price to sell property")
-
+	
 	_ = cmd.MarkFlagRequired(flagPropertyID)
 	_ = cmd.MarkFlagRequired(flagArea)
 	_ = cmd.MarkFlagRequired(flagPrice)
-
+	
 	return cmd
 }

@@ -2,15 +2,16 @@ package app
 
 import (
 	"encoding/json"
-	"github.com/dharani/x/dharani"
 	"io"
 	"os"
-
+	
+	"github.com/dharani/x/dharani"
+	
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
 	tmos "github.com/tendermint/tendermint/libs/os"
 	dbm "github.com/tendermint/tm-db"
-
+	
 	bam "github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/codec"
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -40,7 +41,7 @@ const appName = "dharani"
 var (
 	DefaultCLIHome  = os.ExpandEnv("$HOME/.dharanicli")
 	DefaultNodeHome = os.ExpandEnv("$HOME/.dharanid")
-
+	
 	ModuleBasics = module.NewBasicManager(
 		genutil.AppModuleBasic{},
 		auth.AppModuleBasic{},
@@ -50,16 +51,16 @@ var (
 		distr.AppModuleBasic{},
 		params.AppModuleBasic{},
 		slashing.AppModuleBasic{},
-
+		
 		ibc.AppModuleBasic{},
 		transfer.AppModuleBasic{},
-
+		
 		dharani.AppModuleBasic{},
-
-
+		
+		
 		// this line is used by starport scaffolding # 2
 	)
-
+	
 	maccPerms = map[string][]string{
 		auth.FeeCollectorName:           nil,
 		distr.ModuleName:                nil,
@@ -72,26 +73,26 @@ var (
 func MakeCodecs() (*std.Codec, *codec.Codec) {
 	cdc := std.MakeCodec(ModuleBasics)
 	interfaceRegistry := cdctypes.NewInterfaceRegistry()
-
+	
 	sdk.RegisterInterfaces(interfaceRegistry)
 	ModuleBasics.RegisterInterfaceModules(interfaceRegistry)
 	appCodec := std.NewAppCodec(cdc, interfaceRegistry)
-
+	
 	return appCodec, cdc
 }
 
 type NewApp struct {
 	*bam.BaseApp
 	cdc *codec.Codec
-
+	
 	invCheckPeriod uint
-
+	
 	keys    map[string]*sdk.KVStoreKey
 	tKeys   map[string]*sdk.TransientStoreKey
 	memKeys map[string]*sdk.MemoryStoreKey
-
+	
 	subspaces map[string]params.Subspace
-
+	
 	accountKeeper    auth.AccountKeeper
 	bankKeeper       bank.Keeper
 	stakingKeeper    staking.Keeper
@@ -102,16 +103,16 @@ type NewApp struct {
 	ibcKeeper        *ibc.Keeper
 	transferKeeper   transfer.Keeper
 	dharaniKeeper    dharani.Keeper
-
+	
 	// this line is used by starport scaffolding # 3
-
+	
 	scopedIBCKeeper      capability.ScopedKeeper
 	scopedTransferKeeper capability.ScopedKeeper
-
+	
 	// this line is used by starport scaffolding # 4
-
+	
 	mm *module.Manager
-
+	
 	sm *module.SimulationManager
 }
 
@@ -123,11 +124,11 @@ func NewInitApp(
 	baseAppOptions ...func(*bam.BaseApp),
 ) *NewApp {
 	appCodec, cdc := MakeCodecs()
-
+	
 	bApp := bam.NewBaseApp(appName, logger, db, auth.DefaultTxDecoder(cdc), baseAppOptions...)
 	bApp.SetCommitMultiStoreTracer(traceStore)
 	bApp.SetAppVersion(version.Version)
-
+	
 	keys := sdk.NewKVStoreKeys(
 		auth.StoreKey,
 		bank.StoreKey,
@@ -138,16 +139,16 @@ func NewInitApp(
 		ibc.StoreKey,
 		transfer.StoreKey,
 		capability.StoreKey,
-
+		
 		dharani.StoreKey,
-
+		
 		// this line is used by starport scaffolding # 5
-
+	
 	)
-
+	
 	tKeys := sdk.NewTransientStoreKeys(params.TStoreKey)
 	memKeys := sdk.NewMemoryStoreKeys(capability.MemStoreKey)
-
+	
 	var app = &NewApp{
 		BaseApp:        bApp,
 		cdc:            cdc,
@@ -156,23 +157,23 @@ func NewInitApp(
 		tKeys:          tKeys,
 		subspaces:      make(map[string]params.Subspace),
 	}
-
+	
 	app.paramsKeeper = params.NewKeeper(appCodec, keys[params.StoreKey], tKeys[params.TStoreKey])
 	app.subspaces[auth.ModuleName] = app.paramsKeeper.Subspace(auth.DefaultParamspace)
 	app.subspaces[bank.ModuleName] = app.paramsKeeper.Subspace(bank.DefaultParamspace)
 	app.subspaces[staking.ModuleName] = app.paramsKeeper.Subspace(staking.DefaultParamspace)
 	app.subspaces[distr.ModuleName] = app.paramsKeeper.Subspace(distr.DefaultParamspace)
 	app.subspaces[slashing.ModuleName] = app.paramsKeeper.Subspace(slashing.DefaultParamspace)
-
+	
 	app.subspaces[dharani.ModuleName] = app.paramsKeeper.Subspace(dharani.DefaultParamspace)
-
+	
 	bApp.SetParamStore(app.paramsKeeper.Subspace(bam.Paramspace).WithKeyTable(std.ConsensusParamsKeyTable()))
-
+	
 	app.capabilityKeeper = capability.NewKeeper(appCodec, keys[capability.StoreKey], memKeys[capability.MemStoreKey])
 	scopedIBCKeeper := app.capabilityKeeper.ScopeToModule(ibc.ModuleName)
 	scopedTransferKeeper := app.capabilityKeeper.ScopeToModule(transfer.ModuleName)
 	// this line is used by starport scaffolding # 6
-
+	
 	app.accountKeeper = auth.NewAccountKeeper(
 		appCodec,
 		keys[auth.StoreKey],
@@ -180,7 +181,7 @@ func NewInitApp(
 		auth.ProtoBaseAccount,
 		maccPerms,
 	)
-
+	
 	app.bankKeeper = bank.NewBaseKeeper(
 		appCodec,
 		keys[bank.StoreKey],
@@ -188,7 +189,7 @@ func NewInitApp(
 		app.subspaces[bank.ModuleName],
 		app.ModuleAccountAddrs(),
 	)
-
+	
 	stakingKeeper := staking.NewKeeper(
 		appCodec,
 		keys[staking.StoreKey],
@@ -196,7 +197,7 @@ func NewInitApp(
 		app.bankKeeper,
 		app.subspaces[staking.ModuleName],
 	)
-
+	
 	app.distrKeeper = distr.NewKeeper(
 		appCodec,
 		keys[distr.StoreKey],
@@ -207,14 +208,14 @@ func NewInitApp(
 		auth.FeeCollectorName,
 		app.ModuleAccountAddrs(),
 	)
-
+	
 	app.slashingKeeper = slashing.NewKeeper(
 		appCodec,
 		keys[slashing.StoreKey],
 		&stakingKeeper,
 		app.subspaces[slashing.ModuleName],
 	)
-
+	
 	app.ibcKeeper = ibc.NewKeeper(
 		app.cdc,
 		appCodec,
@@ -222,7 +223,7 @@ func NewInitApp(
 		stakingKeeper,
 		scopedIBCKeeper,
 	)
-
+	
 	app.transferKeeper = transfer.NewKeeper(
 		appCodec,
 		keys[transfer.StoreKey],
@@ -232,26 +233,26 @@ func NewInitApp(
 		app.bankKeeper,
 		scopedTransferKeeper,
 	)
-
+	
 	app.dharaniKeeper = dharani.NewKeeper(app.bankKeeper, app.cdc, keys[dharani.StoreKey])
-
+	
 	transferModule := transfer.NewAppModule(app.transferKeeper)
-
+	
 	// this line is used by starport scaffolding # 7
-
+	
 	ibcRouter := port.NewRouter()
 	ibcRouter.AddRoute(transfer.ModuleName, transferModule)
 	// this line is used by starport scaffolding # 8
-
+	
 	app.ibcKeeper.SetRouter(ibcRouter)
-
+	
 	app.stakingKeeper = *stakingKeeper.SetHooks(
 		staking.NewMultiStakingHooks(
 			app.distrKeeper.Hooks(),
 			app.slashingKeeper.Hooks(),
 		),
 	)
-
+	
 	app.mm = module.NewManager(
 		genutil.NewAppModule(app.accountKeeper, app.stakingKeeper, app.BaseApp.DeliverTx),
 		auth.NewAppModule(appCodec, app.accountKeeper),
@@ -262,23 +263,23 @@ func NewInitApp(
 		staking.NewAppModule(appCodec, app.stakingKeeper, app.accountKeeper, app.bankKeeper),
 		ibc.NewAppModule(app.ibcKeeper),
 		params.NewAppModule(app.paramsKeeper),
-
+		
 		dharani.NewAppModule(app.dharaniKeeper, app.bankKeeper),
-
+		
 		transferModule,
 		// this line is used by starport scaffolding # 9
-
+	
 	)
-
+	
 	app.mm.SetOrderBeginBlockers(
 		distr.ModuleName,
 		slashing.ModuleName,
 		staking.ModuleName,
 		ibc.ModuleName,
 	)
-
+	
 	app.mm.SetOrderEndBlockers(staking.ModuleName)
-
+	
 	app.mm.SetOrderInitGenesis(
 		capability.ModuleName,
 		auth.ModuleName,
@@ -289,23 +290,23 @@ func NewInitApp(
 		ibc.ModuleName,
 		genutil.ModuleName,
 		transfer.ModuleName,
-
+		
 		dharani.ModuleName,
-
+		
 		// this line is used by starport scaffolding # 10
-
+	
 	)
-
+	
 	app.mm.RegisterRoutes(app.Router(), app.QueryRouter())
-
+	
 	app.SetInitChainer(app.InitChainer)
 	app.SetBeginBlocker(app.BeginBlocker)
 	app.SetEndBlocker(app.EndBlocker)
-
+	
 	app.MountKVStores(keys)
 	app.MountTransientStores(tKeys)
 	app.MountMemoryStores(memKeys)
-
+	
 	app.SetInitChainer(app.InitChainer)
 	app.SetBeginBlocker(app.BeginBlocker)
 	app.SetAnteHandler(
@@ -317,21 +318,21 @@ func NewInitApp(
 		),
 	)
 	app.SetEndBlocker(app.EndBlocker)
-
+	
 	if loadLatest {
 		err := app.LoadLatestVersion()
 		if err != nil {
 			tmos.Exit(err.Error())
 		}
 	}
-
+	
 	ctx := app.BaseApp.NewUncachedContext(true, abci.Header{})
 	app.capabilityKeeper.InitializeAndSeal(ctx)
-
+	
 	app.scopedIBCKeeper = scopedIBCKeeper
 	app.scopedTransferKeeper = scopedTransferKeeper
 	// this line is used by starport scaffolding # 11
-
+	
 	return app
 }
 
@@ -340,14 +341,14 @@ type GenesisState map[string]json.RawMessage
 func NewDefaultGenesisState() GenesisState {
 	cdc := codecstd.MakeCodec(ModuleBasics)
 	return ModuleBasics.DefaultGenesis(cdc)
-
+	
 }
 
 func (app *NewApp) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.ResponseInitChain {
 	var genesisState GenesisState
-
+	
 	app.cdc.MustUnmarshalJSON(req.AppStateBytes, &genesisState)
-
+	
 	return app.mm.InitGenesis(ctx, app.cdc, genesisState)
 }
 
@@ -368,7 +369,7 @@ func (app *NewApp) ModuleAccountAddrs() map[string]bool {
 	for acc := range maccPerms {
 		modAccAddrs[auth.NewModuleAddress(acc).String()] = true
 	}
-
+	
 	return modAccAddrs
 }
 
