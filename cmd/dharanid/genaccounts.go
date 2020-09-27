@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
+
 	"github.com/tendermint/go-amino"
 
 	"github.com/spf13/cobra"

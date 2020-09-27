@@ -20,8 +20,7 @@ import (
 	"github.com/tendermint/tendermint/types"
 
 	"github.com/dharani/app"
-    internal	"github.com/dharani/types"
-
+	internal "github.com/dharani/types"
 )
 
 const (

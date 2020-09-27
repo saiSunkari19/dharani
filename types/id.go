@@ -7,7 +7,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
-
+	
 	"github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -38,12 +38,12 @@ func NewPropertyIDFromString(s string) (PropertyID, error) {
 	if len(s) < 5 {
 		return nil, fmt.Errorf("invalid property id length")
 	}
-
+	
 	i, err := strconv.ParseUint(s[4:], 16, 64)
 	if err != nil {
 		return nil, err
 	}
-
+	
 	return NewPropertyID(i), nil
 }
 
@@ -76,14 +76,14 @@ func (id *PropertyID) UnmarshalJSON(bytes []byte) error {
 	if err := json.Unmarshal(bytes, &s); err != nil {
 		return err
 	}
-
+	
 	_id, err := NewPropertyIDFromString(s)
 	if err != nil {
 		return err
 	}
-
+	
 	*id = _id
-
+	
 	return nil
 }
 
@@ -106,7 +106,7 @@ func (ids IDs) Less(x, y int) bool {
 	} else if i == 0 {
 		return ids[x].Uint64() < ids[y].Uint64()
 	}
-
+	
 	return false
 }
 
@@ -129,11 +129,11 @@ func (ids IDs) Search(id ID) int {
 	index := sort.Search(len(ids), func(x int) bool {
 		return ids[x].Prefix() > id.Prefix() || ids[x].Uint64() >= i
 	})
-
+	
 	if (index == ids.Len()) ||
 		(index < ids.Len() && ids[index].String() != id.String()) {
 		return ids.Len()
 	}
-
+	
 	return index
 }

@@ -5,4 +5,5 @@ const (
 	flagLocation   = "location"
 	flagPropertyID = "property-id"
 	flagPrice      = "price"
+	flagNoOfSqFt   = "cost"
 )
