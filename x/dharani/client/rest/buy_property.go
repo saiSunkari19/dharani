@@ -16,7 +16,7 @@ import (
 type msgBuyProperty struct {
 	BaseReq  rest.BaseReq `json:"base_req"`
 	ID       string       `json:"id"`
-	Area     int64        `json:"area"`
+	Area     uint64       `json:"area"`
 	Name     string       `json:"name"`
 	Password string       `json:"password"`
 	Mode     string       `json:"mode"`

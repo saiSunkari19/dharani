@@ -1,7 +1,6 @@
 package rest
 
 import (
-	"errors"
 	"net/http"
 	"os"
 	
@@ -13,10 +12,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/auth/client"
 	"github.com/spf13/viper"
-)
-
-var (
-	errInvalidGasAdjustment = errors.New("invalid gas adjustment")
 )
 
 func BuildSignBroadcast(w http.ResponseWriter, br rest.BaseReq, cliCtx context.CLIContext,
@@ -69,7 +64,7 @@ func BuildSignBroadcast(w http.ResponseWriter, br rest.BaseReq, cliCtx context.C
 	
 	if br.Simulate || simAndExec {
 		if gasAdj < 0 {
-			rest.WriteErrorResponse(w, http.StatusBadRequest, errInvalidGasAdjustment.Error())
+			rest.WriteErrorResponse(w, http.StatusBadRequest, "invalid gas adjustment")
 			return
 		}
 		

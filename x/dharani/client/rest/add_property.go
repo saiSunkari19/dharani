@@ -13,7 +13,7 @@ import (
 
 type msgAddProperty struct {
 	BaseReq  rest.BaseReq `json:"base_req"`
-	Area     int64        `json:"area"`
+	Area     uint64       `json:"area"`
 	Location string       `json:"location"`
 	Name     string       `json:"name"`
 	Password string       `json:"password"`

@@ -20,7 +20,7 @@ func CommandAddProperty(cdc *codec.Codec) *cobra.Command {
 			txb := auth.NewTxBuilderFromCLI(nil).WithTxEncoder(client.GetTxEncoder(cdc))
 			ctx := context.NewCLIContext().WithCodec(cdc)
 			
-			area := viper.GetInt64(flagArea)
+			area := viper.GetUint64(flagArea)
 			location := viper.GetString(flagLocation)
 			
 			msg := types.NewMsgAddProperty(ctx.FromAddress, area, location)
