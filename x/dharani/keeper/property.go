@@ -9,7 +9,7 @@ import (
 )
 
 func (k Keeper) SetPropertyCount(ctx sdk.Context, count uint64) {
-	value := k.cdc.MustMarshalBinaryLengthPrefixed(count)
+	value := k.cdc.MustMarshalBinaryBare(count)
 	
 	store := ctx.KVStore(k.storeKey)
 	store.Set(types.PropertyCountKey, value)
@@ -23,7 +23,7 @@ func (k Keeper) GetPropertyCount(ctx sdk.Context) (count uint64) {
 		return 0
 	}
 	
-	k.cdc.MustUnmarshalBinaryLengthPrefixed(value, &count)
+	k.cdc.MustUnmarshalBinaryBare(value, &count)
 	return count
 }
 
@@ -31,7 +31,7 @@ func (k Keeper) SetProperty(ctx sdk.Context, id string, property types.Property)
 	store := ctx.KVStore(k.storeKey)
 	
 	key := types.GetPropertyKey([]byte(id))
-	value := k.cdc.MustMarshalBinaryLengthPrefixed(property)
+	value := k.cdc.MustMarshalBinaryBare(property)
 	
 	store.Set(key, value)
 }
@@ -45,7 +45,7 @@ func (k Keeper) GetProperty(ctx sdk.Context, id string) (property *types.Propert
 		return nil
 	}
 	
-	k.cdc.MustUnmarshalBinaryLengthPrefixed(value, &property)
+	k.cdc.MustUnmarshalBinaryBare(value, &property)
 	
 	return property
 }
@@ -59,7 +59,7 @@ func (k Keeper) GetAllProperties(ctx sdk.Context) []types.Property {
 	var properties []types.Property
 	for ; iterator.Valid(); iterator.Next() {
 		var property types.Property
-		k.cdc.MustUnmarshalBinaryLengthPrefixed(iterator.Value(), &property)
+		k.cdc.MustUnmarshalBinaryBare(iterator.Value(), &property)
 		properties = append(properties, property)
 	}
 	
@@ -75,7 +75,7 @@ func (k Keeper) GetPropertyByAddress(ctx sdk.Context, addr sdk.AccAddress) []typ
 	var properties []types.Property
 	for ; iterator.Valid(); iterator.Next() {
 		var property types.Property
-		k.cdc.MustUnmarshalBinaryLengthPrefixed(iterator.Value(), &property)
+		k.cdc.MustUnmarshalBinaryBare(iterator.Value(), &property)
 		if bytes.Compare(property.Owner.Bytes(), addr.Bytes()) == 0 {
 			properties = append(properties, property)
 		}
