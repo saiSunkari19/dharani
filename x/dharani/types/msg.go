@@ -2,7 +2,10 @@ package types
 
 import (
 	"encoding/json"
+	
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	
 	"github.com/dharani/types"
 )
 
@@ -28,7 +31,7 @@ func (msg MsgAddProperty) ValidateBasic() error {
 	if msg.Location == "" {
 		return ErrInvalidLocation
 	}
-
+	
 	return nil
 }
 
@@ -37,7 +40,7 @@ func (msg MsgAddProperty) GetSignBytes() []byte {
 	if err != nil {
 		panic(err)
 	}
-
+	
 	return bz
 }
 
@@ -60,10 +63,10 @@ func NewMsgAddProperty(from sdk.AccAddress, area int64, location string) *MsgAdd
 var _ sdk.Msg = (*MsgSellProperty)(nil)
 
 type MsgSellProperty struct {
-	From   sdk.AccAddress
-	PropID types.PropertyID
-	Area   int64
-	Cost   sdk.Coin
+	From      sdk.AccAddress
+	PropID    types.PropertyID
+	Area      int64
+	PerSqCost sdk.Coin
 }
 
 func (msg MsgSellProperty) Type() string {
@@ -77,10 +80,10 @@ func (msg MsgSellProperty) ValidateBasic() error {
 	if msg.Area < 0 {
 		return ErrInvalidArea
 	}
-	if msg.Cost.Amount.Int64() < 0 {
+	if msg.PerSqCost.Amount.Int64() < 0 {
 		return ErrInvalidCost
 	}
-
+	
 	return nil
 }
 
@@ -89,7 +92,7 @@ func (msg MsgSellProperty) GetSignBytes() []byte {
 	if err != nil {
 		panic(err)
 	}
-
+	
 	return bz
 }
 
@@ -103,10 +106,10 @@ func (msg MsgSellProperty) Route() string {
 
 func NewMsgSellProperty(from sdk.AccAddress, id types.PropertyID, area int64, cost sdk.Coin) *MsgSellProperty {
 	return &MsgSellProperty{
-		From:   from,
-		Area:   area,
-		PropID: id,
-		Cost:   cost,
+		From:      from,
+		Area:      area,
+		PropID:    id,
+		PerSqCost: cost,
 	}
 }
 
@@ -115,6 +118,7 @@ var _ sdk.Msg = (*MsgBuyProperty)(nil)
 type MsgBuyProperty struct {
 	From   sdk.AccAddress
 	PropID types.PropertyID
+	Area   int64
 }
 
 func (msg MsgBuyProperty) Type() string {
@@ -125,7 +129,11 @@ func (msg MsgBuyProperty) ValidateBasic() error {
 	if msg.From == nil || msg.From.Empty() {
 		return ErrInvalidFromAddress
 	}
-
+	
+	if msg.Area == 0 {
+		return sdkerrors.Wrap(ErrInvalidField, "area")
+	}
+	
 	return nil
 }
 
@@ -134,7 +142,7 @@ func (msg MsgBuyProperty) GetSignBytes() []byte {
 	if err != nil {
 		panic(err)
 	}
-
+	
 	return bz
 }
 
@@ -146,9 +154,10 @@ func (msg MsgBuyProperty) Route() string {
 	return RouterKey
 }
 
-func NewMsgBuyProperty(from sdk.AccAddress, id types.PropertyID) *MsgBuyProperty {
+func NewMsgBuyProperty(from sdk.AccAddress, id types.PropertyID, area int64) *MsgBuyProperty {
 	return &MsgBuyProperty{
 		From:   from,
 		PropID: id,
+		Area:   area,
 	}
 }

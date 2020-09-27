@@ -10,4 +10,5 @@ var (
 	ErrInvalidLocation    = sdkerrors.Register(ModuleName, 3, "invalid location")
 	ErrInvalidType        = sdkerrors.Register(ModuleName, 4, "invalid  type")
 	ErrInvalidCost        = sdkerrors.Register(ModuleName, 5, "invalid  cost")
+	ErrInvalidField       = sdkerrors.Register(ModuleName, 5, "invalid  filed")
 )

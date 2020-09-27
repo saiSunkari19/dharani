@@ -3,10 +3,12 @@ package dharani
 import (
 	"errors"
 	"fmt"
+	"strings"
+	
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	
 	"github.com/dharani/x/dharani/types"
-	"strings"
 )
 
 // NewHandler ...
@@ -29,14 +31,14 @@ func NewHandler(k Keeper) sdk.Handler {
 
 func handlerAddProperty(ctx sdk.Context, k Keeper, msg types.MsgAddProperty) (*sdk.Result, error) {
 	pc := k.GetPropertyCount(ctx)
-
+	
 	id := GetPropertyID(pc)
 	property := types.NewProperty(id, msg.Area, msg.From, msg.Location,
 		types.TypeOwn, "", sdk.Coin{})
-
+	
 	k.SetProperty(ctx, id, property)
 	k.SetPropertyCount(ctx, pc+1)
-
+	
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			EventTypeMsgAddProperty,
@@ -44,13 +46,13 @@ func handlerAddProperty(ctx sdk.Context, k Keeper, msg types.MsgAddProperty) (*s
 			sdk.NewAttribute(AttributeKeyPropertyID, property.ID),
 		),
 	)
-
+	
 	return &sdk.Result{Events: ctx.EventManager().Events().ToABCIEvents()}, nil
 }
 
 func handlerSellProperty(ctx sdk.Context, k Keeper, msg types.MsgSellProperty) (*sdk.Result, error) {
 	property := k.GetProperty(ctx, msg.PropID.String())
-
+	
 	if property == nil {
 		return nil, errors.New("invalid property")
 	}
@@ -60,19 +62,19 @@ func handlerSellProperty(ctx sdk.Context, k Keeper, msg types.MsgSellProperty) (
 	if property.Area < msg.Area {
 		return nil, errors.New("invalid area")
 	}
-
+	
 	pc := k.GetPropertyCount(ctx)
 	id := GetPropertyID(pc)
-
+	
 	sellProperty := types.NewProperty(id, property.Area, property.Owner,
-		property.Location, types.TypeSell, property.ID, msg.Cost)
-
+		property.Location, types.TypeSell, property.ID, msg.PerSqCost)
+	
 	property.Area = property.Area - msg.Area
-
+	
 	k.SetProperty(ctx, property.ID, *property)
 	k.SetProperty(ctx, id, sellProperty)
 	k.SetPropertyCount(ctx, pc+1)
-
+	
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			EventTypeMsgSellProperty,
@@ -80,46 +82,49 @@ func handlerSellProperty(ctx sdk.Context, k Keeper, msg types.MsgSellProperty) (
 			sdk.NewAttribute(AttributeKeyPropertyID, id),
 		),
 	)
-
+	
 	return &sdk.Result{Events: ctx.EventManager().Events().ToABCIEvents()}, nil
 }
 
 func handlerBuyProperty(ctx sdk.Context, k Keeper, msg types.MsgBuyProperty) (*sdk.Result, error) {
 	property := k.GetProperty(ctx, msg.PropID.String())
-
+	
 	if property == nil {
 		return nil, errors.New("invalid property")
 	}
 	if strings.Compare(property.Type, types.TypeSell) != 0 {
 		return nil, errors.New("invalid property")
 	}
-
-	bal := k.CoinKeeper.GetBalance(ctx, msg.From, property.Cost.Denom)
-	if bal.IsLT(property.Cost) {
+	
+	amount := msg.Area * property.PerSqCost.Amount.Int64()
+	deductAmount := sdk.NewInt64Coin(property.PerSqCost.Denom, amount)
+	
+	bal := k.CoinKeeper.GetBalance(ctx, msg.From, property.PerSqCost.Denom)
+	if bal.IsLT(deductAmount) {
 		return nil, errors.New("invalid account balance")
 	}
-
-	_, err := k.CoinKeeper.SubtractCoins(ctx, msg.From, []sdk.Coin{property.Cost})
+	
+	_, err := k.CoinKeeper.SubtractCoins(ctx, msg.From, []sdk.Coin{deductAmount})
 	if err != nil {
 		return nil, err
 	}
-
-	_, err = k.CoinKeeper.AddCoins(ctx, property.Owner, []sdk.Coin{property.Cost})
+	
+	_, err = k.CoinKeeper.AddCoins(ctx, property.Owner, []sdk.Coin{deductAmount})
 	if err != nil {
 		return nil, err
 	}
-
+	
 	pc := k.GetPropertyCount(ctx)
 	id := GetPropertyID(pc)
-
-	buyProperty := types.NewProperty(id, property.Area, msg.From, property.Location,
+	
+	buyProperty := types.NewProperty(id, msg.Area, msg.From, property.Location,
 		types.TypeOwn, property.ID, sdk.Coin{})
-
-	property.Area = 0
+	
+	property.Area = property.Area - msg.Area
 	k.SetProperty(ctx, property.ID, *property)
 	k.SetProperty(ctx, id, buyProperty)
 	k.SetPropertyCount(ctx, pc+1)
-
+	
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			EventTypeMsgBuyProperty,
@@ -127,6 +132,6 @@ func handlerBuyProperty(ctx sdk.Context, k Keeper, msg types.MsgBuyProperty) (*s
 			sdk.NewAttribute(AttributeKeyPropertyID, buyProperty.ID),
 		),
 	)
-
+	
 	return &sdk.Result{Events: ctx.EventManager().Events().ToABCIEvents()}, nil
 }
