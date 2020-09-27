@@ -39,7 +39,7 @@ func SignAndBroadcast(br rest.BaseReq, cliCtx context.CLIContext,
 	}
 
 	_, err = kr.Key(name)
-	if err == nil {
+	if err != nil {
 		return nil, errors.New("No key found")
 	}
 
@@ -70,6 +70,7 @@ func SignAndBroadcast(br rest.BaseReq, cliCtx context.CLIContext,
 	}
 
 	stdTx := auth.NewStdTx(stdMsg.Msgs, stdMsg.Fee, nil, stdMsg.Memo)
+	cliCtx = cliCtx.WithFromName(name)
 
 	stdTx, err = SignStdTxFromRest(txBldr, cliCtx, cliCtx.GetFromName(), stdTx, true, false, password)
 	if err != nil {

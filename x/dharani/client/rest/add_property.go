@@ -16,6 +16,7 @@ type msgAddProperty struct {
 	Location string       `json:"location"`
 	Name     string       `json:"name"`
 	Password string       `json:"password"`
+	Mode     string       `json:"mode"`
 }
 
 func addPropertyHandlerFunc(ctx context.CLIContext) http.HandlerFunc {
@@ -43,10 +44,10 @@ func addPropertyHandlerFunc(ctx context.CLIContext) http.HandlerFunc {
 			return
 		}
 
-		res, err := rest2.SignAndBroadcast(req.BaseReq, ctx, ctx.BroadcastMode, req.Name, req.Password, []sdk.Msg{msg})
+		res, err := rest2.SignAndBroadcast(req.BaseReq, ctx, req.Mode, req.Name, req.Password, []sdk.Msg{msg})
 
 		if err != nil {
-			w.Write([]byte(err.Error()))
+			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 			return
 		}
 
