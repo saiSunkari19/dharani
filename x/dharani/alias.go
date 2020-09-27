@@ -36,6 +36,7 @@ var (
 	
 	AttributeKeyFromAddress = types.AttributeKeyFromAddress
 	AttributeKeyPropertyID  = types.AttributeKeyPropertyID
+	PropertyKey             = types.PropertyKey
 )
 
 type (

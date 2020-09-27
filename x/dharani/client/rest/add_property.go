@@ -45,14 +45,6 @@ func addPropertyHandlerFunc(ctx context.CLIContext) http.HandlerFunc {
 			return
 		}
 		
-		res, err := rest2.SignAndBroadcast(req.BaseReq, ctx, req.Mode, req.Name, req.Password, []sdk.Msg{msg})
-		
-		if err != nil {
-			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
-			return
-		}
-		
-		rest.PostProcessResponse(w, ctx, res)
-		return
+		rest2.BuildSignBroadcast(w, req.BaseReq, ctx, req.Mode, req.Name, req.Password, []sdk.Msg{msg})
 	}
 }

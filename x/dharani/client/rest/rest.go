@@ -10,4 +10,6 @@ import (
 func RegisterRoutes(cliCtx context.CLIContext, r *mux.Router) {
 	r.HandleFunc("/faucet", faucetHandler(cliCtx)).Methods("POST")
 	r.HandleFunc("/property", addPropertyHandlerFunc(cliCtx)).Methods("POST")
+	
+	r.HandleFunc("/property", getPropertyHandlerFunc(cliCtx)).Methods("GET")
 }
