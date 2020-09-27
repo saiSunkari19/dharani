@@ -36,6 +36,14 @@ var (
 	
 	AttributeKeyFromAddress = types.AttributeKeyFromAddress
 	AttributeKeyPropertyID  = types.AttributeKeyPropertyID
+	PropertyKey             = types.PropertyKey
+	
+	ErrInvalidArea     = types.ErrInvalidArea
+	ErrInvalidLocation = types.ErrInvalidLocation
+	ErrInvalidType     = types.ErrInvalidType
+	ErrInvalidCost     = types.ErrInvalidCost
+	ErrInvalidId       = types.ErrInvalidId
+	ErrInvalidField    = types.ErrInvalidField
 )
 
 type (

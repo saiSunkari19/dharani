@@ -1,8 +1,6 @@
 package keeper
 
 import (
-	"github.com/tendermint/go-amino"
-	
 	"github.com/dharani/x/dharani/types"
 	
 	// this line is used by starport scaffolding
@@ -41,7 +39,7 @@ func queryProperty(ctx sdk.Context, path []string, k Keeper) ([]byte, error) {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "No property found with propertyID")
 	}
 	
-	bz, err := amino.MarshalJSONIndent(property, "", " ")
+	bz, err := k.cdc.MarshalJSON(property)
 	if err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
 	}
@@ -54,7 +52,7 @@ func queryAllProperties(ctx sdk.Context, k Keeper) ([]byte, error) {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "no properties found")
 	}
 	
-	bz, err := amino.MarshalJSONIndent(properties, "", " ")
+	bz, err := k.cdc.MarshalJSON(properties)
 	if err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
 	}
@@ -68,7 +66,8 @@ func queryPropertyByAddress(ctx sdk.Context, path []string, k Keeper) ([]byte, e
 	}
 	
 	properties := k.GetPropertyByAddress(ctx, addr)
-	bz, err := amino.MarshalJSONIndent(properties, "", " ")
+	
+	bz, err := k.cdc.MarshalJSON(properties)
 	if err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
 	}
