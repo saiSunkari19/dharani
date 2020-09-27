@@ -1,8 +1,6 @@
 package types
 
 import (
-	"encoding/json"
-	
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	
@@ -36,12 +34,7 @@ func (msg MsgAddProperty) ValidateBasic() error {
 }
 
 func (msg MsgAddProperty) GetSignBytes() []byte {
-	bz, err := json.Marshal(msg)
-	if err != nil {
-		panic(err)
-	}
-	
-	return bz
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
 }
 
 func (msg MsgAddProperty) GetSigners() []sdk.AccAddress {
@@ -88,12 +81,7 @@ func (msg MsgSellProperty) ValidateBasic() error {
 }
 
 func (msg MsgSellProperty) GetSignBytes() []byte {
-	bz, err := json.Marshal(msg)
-	if err != nil {
-		panic(err)
-	}
-	
-	return bz
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
 }
 
 func (msg MsgSellProperty) GetSigners() []sdk.AccAddress {
@@ -138,12 +126,7 @@ func (msg MsgBuyProperty) ValidateBasic() error {
 }
 
 func (msg MsgBuyProperty) GetSignBytes() []byte {
-	bz, err := json.Marshal(msg)
-	if err != nil {
-		panic(err)
-	}
-	
-	return bz
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
 }
 
 func (msg MsgBuyProperty) GetSigners() []sdk.AccAddress {

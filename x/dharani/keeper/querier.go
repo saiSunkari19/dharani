@@ -2,12 +2,12 @@ package keeper
 
 import (
 	"github.com/tendermint/go-amino"
-
+	
 	"github.com/dharani/x/dharani/types"
-
+	
 	// this line is used by starport scaffolding
 	abci "github.com/tendermint/tendermint/abci/types"
-
+	
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
@@ -40,7 +40,7 @@ func queryProperty(ctx sdk.Context, path []string, k Keeper) ([]byte, error) {
 	if property == nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "No property found with propertyID")
 	}
-
+	
 	bz, err := amino.MarshalJSONIndent(property, "", " ")
 	if err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
@@ -53,7 +53,7 @@ func queryAllProperties(ctx sdk.Context, k Keeper) ([]byte, error) {
 	if properties == nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "no properties found")
 	}
-
+	
 	bz, err := amino.MarshalJSONIndent(properties, "", " ")
 	if err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
@@ -66,12 +66,12 @@ func queryPropertyByAddress(ctx sdk.Context, path []string, k Keeper) ([]byte, e
 	if err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "error while converting account address")
 	}
-
+	
 	properties := k.GetPropertyByAddress(ctx, addr)
 	bz, err := amino.MarshalJSONIndent(properties, "", " ")
 	if err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
 	}
-
+	
 	return bz, nil
 }

@@ -2,16 +2,16 @@ package types
 
 const (
 	DefaultStakeDenom = "cent"
-
+	
 	Bech32MainPrefix = "dharani"
-
+	
 	PrefixAccount   = "acc"
 	PrefixValidator = "val"
 	PrefixConsensus = "cons"
 	PrefixPublic    = "pub"
 	PrefixOperator  = "oper"
 	PrefixAddress   = "addr"
-
+	
 	Bech32PrefixAccAddr  = Bech32MainPrefix
 	Bech32PrefixAccPub   = Bech32MainPrefix + PrefixPublic
 	Bech32PrefixValAddr  = Bech32MainPrefix + PrefixValidator + PrefixOperator
