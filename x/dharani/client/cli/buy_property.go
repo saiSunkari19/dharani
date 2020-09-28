@@ -22,7 +22,7 @@ func CommandBuyProperty(cdc *codec.Codec) *cobra.Command {
 			ctx := context.NewCLIContext().WithCodec(cdc)
 			
 			_propertyID := viper.GetString(flagPropertyID)
-			_noOfSqFt := viper.GetInt64(flagNoOfSqFt)
+			_noOfSqFt := viper.GetUint64(flagNoOfSqFt)
 			propertyID, err := types2.NewPropertyIDFromString(_propertyID)
 			if err != nil {
 				return err

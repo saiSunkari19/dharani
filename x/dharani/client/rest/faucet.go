@@ -13,7 +13,7 @@ import (
 )
 
 type claimReq struct {
-	Address string
+	Address string `json:"address"`
 }
 
 func faucetHandler(cliCtx context.CLIContext) http.HandlerFunc {
@@ -34,7 +34,7 @@ func faucetHandler(cliCtx context.CLIContext) http.HandlerFunc {
 		if encodeErr != nil {
 			log.Println(encodeErr)
 		}
-		cmd := exec.Command("dharanicli", "tx", "send", "me", encodedAddress, "1cent", "-y")
+		cmd := exec.Command("dharanicli", "tx", "send", "me", encodedAddress, "100cent", "-y")
 		_, err := cmd.Output()
 		if err != nil {
 			log.Println(fmt.Sprintf("%s", err))
