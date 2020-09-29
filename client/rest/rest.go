@@ -29,7 +29,7 @@ func BuildSignBroadcast(w http.ResponseWriter, br rest.BaseReq, cliCtx context.C
 		return
 	}
 	
-	kr, err := keyring.New("dharani", keyring.BackendOS, app.DefaultNodeHome,, os.Stdin)
+	kr, err := keyring.New("dharani", keyring.BackendOS, app.DefaultNodeHome, os.Stdin)
 	if err != nil {
 		rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
