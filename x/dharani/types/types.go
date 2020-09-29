@@ -6,7 +6,7 @@ import (
 
 type Property struct {
 	ID          string
-	Area        int64
+	Area        uint64
 	Owner       sdk.AccAddress
 	Location    string
 	Type        string
@@ -14,7 +14,7 @@ type Property struct {
 	PerSqCost   sdk.Coin
 }
 
-func NewProperty(id string, area int64, owner sdk.AccAddress, location string,
+func NewProperty(id string, area uint64, owner sdk.AccAddress, location string,
 	_type string, refPropID string, cost sdk.Coin) Property {
 	return Property{
 		ID:          id,

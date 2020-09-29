@@ -22,7 +22,7 @@ func CommandSellProperty(cdc *codec.Codec) *cobra.Command {
 			ctx := context.NewCLIContext().WithCodec(cdc)
 			
 			_propertyID := viper.GetString(flagPropertyID)
-			area := viper.GetInt64(flagArea)
+			area := viper.GetUint64(flagArea)
 			coin := viper.GetString(flagPrice)
 			propertyID, err := types2.NewPropertyIDFromString(_propertyID)
 			if err != nil {

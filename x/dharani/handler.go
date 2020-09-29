@@ -1,7 +1,6 @@
 package dharani
 
 import (
-	"errors"
 	"fmt"
 	"strings"
 	
@@ -15,6 +14,7 @@ import (
 func NewHandler(k Keeper) sdk.Handler {
 	return func(ctx sdk.Context, msg sdk.Msg) (*sdk.Result, error) {
 		ctx = ctx.WithEventManager(sdk.NewEventManager())
+		
 		switch msg := msg.(type) {
 		case types.MsgAddProperty:
 			return handlerAddProperty(ctx, k, msg)
@@ -54,19 +54,19 @@ func handlerSellProperty(ctx sdk.Context, k Keeper, msg types.MsgSellProperty) (
 	property := k.GetProperty(ctx, msg.PropID.String())
 	
 	if property == nil {
-		return nil, errors.New("invalid property")
+		return nil, sdkerrors.Wrap(ErrInvalidId, "property doesn't exist")
 	}
 	if !property.Owner.Equals(msg.From) {
-		return nil, errors.New("invalid property owner")
+		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "unauthorised")
 	}
 	if property.Area < msg.Area {
-		return nil, errors.New("invalid area")
+		return nil, sdkerrors.Wrap(ErrInvalidArea, "")
 	}
 	
 	pc := k.GetPropertyCount(ctx)
 	id := GetPropertyID(pc)
 	
-	sellProperty := types.NewProperty(id, property.Area, property.Owner,
+	sellProperty := types.NewProperty(id, msg.Area, property.Owner,
 		property.Location, types.TypeSell, property.ID, msg.PerSqCost)
 	
 	property.Area = property.Area - msg.Area
@@ -90,18 +90,20 @@ func handlerBuyProperty(ctx sdk.Context, k Keeper, msg types.MsgBuyProperty) (*s
 	property := k.GetProperty(ctx, msg.PropID.String())
 	
 	if property == nil {
-		return nil, errors.New("invalid property")
+		return nil, sdkerrors.Wrap(ErrInvalidId, "property doesn't exist")
 	}
 	if strings.Compare(property.Type, types.TypeSell) != 0 {
-		return nil, errors.New("invalid property")
+		return nil, sdkerrors.Wrap(ErrInvalidType, "property unavailable")
 	}
-	
-	amount := msg.Area * property.PerSqCost.Amount.Int64()
-	deductAmount := sdk.NewInt64Coin(property.PerSqCost.Denom, amount)
+	if msg.Area > property.Area {
+		return nil, sdkerrors.Wrap(ErrInvalidArea, "buyer property exceeds the limit")
+	}
+	amount := msg.Area * property.PerSqCost.Amount.Uint64()
+	deductAmount := sdk.NewInt64Coin(property.PerSqCost.Denom, int64(amount))
 	
 	bal := k.CoinKeeper.GetBalance(ctx, msg.From, property.PerSqCost.Denom)
 	if bal.IsLT(deductAmount) {
-		return nil, errors.New("invalid account balance")
+		return nil, sdkerrors.Wrap(sdkerrors.ErrInsufficientFunds, "to buy property")
 	}
 	
 	_, err := k.CoinKeeper.SubtractCoins(ctx, msg.From, []sdk.Coin{deductAmount})

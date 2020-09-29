@@ -1,62 +1,70 @@
 package rest
 
 import (
+	"errors"
 	"fmt"
+	"net/http"
+	
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/types/rest"
+	
 	"github.com/dharani/x/dharani/types"
-	"github.com/gorilla/mux"
-	"net/http"
 )
 
-func getPropertyByIDHandlerFunc(ctx context.CLIContext) http.HandlerFunc {
+func getPropertyHandlerFunc(cliCtx context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		vars := mux.Vars(r)
-
-		bz, _, err := ctx.QueryWithData(fmt.Sprintf("/custom/%s/%s/%s",
-			types.QuerierRoute, types.QueryProperty, vars["id"]), nil)
-		if err != nil {
-			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
-			return
-		}
-
-		rest.PostProcessResponse(w, ctx, bz)
-		return
-	}
-}
-
-func getPropertyByAddressHandlerFunc(ctx context.CLIContext) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		vars := mux.Vars(r)
-
-		bz, _, err := ctx.QueryWithData(fmt.Sprintf("/custom/%s/%s/%s", types.QuerierRoute,
-			types.QueryPropertyByAddr, vars["address"]), nil)
-		if err != nil {
-			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
-			return
-		}
-
 		var properties []types.Property
-		ctx.Codec.MustUnmarshalJSON(bz, &properties)
-
-		rest.PostProcessResponse(w, ctx, properties)
-		return
-	}
-}
-
-func getAllPropertiesHandlerFunc(ctx context.CLIContext) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-
-		bz, _, err := ctx.QueryWithData(fmt.Sprintf("/custom/%s/%s/%s", types.QuerierRoute, types.QueryAllProperties, nil), nil)
-		if err != nil {
-			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
-			return
+		
+		id := r.URL.Query().Get("id")
+		addr := r.URL.Query().Get("address")
+		if len(addr) > 0 {
+			res, _, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/%s/%s", types.QuerierRoute, types.QueryPropertyByAddr, addr), nil)
+			if err != nil {
+				rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
+				return
+			}
+			if len(res) == 0 {
+				rest.WriteErrorResponse(w, http.StatusInternalServerError, errors.New("response bytes are empty").Error())
+				return
+			}
+			
+			if err := cliCtx.Codec.UnmarshalJSON(res, &properties); err != nil {
+				rest.WriteErrorResponse(w, http.StatusInternalServerError, errors.New("error occurs while unmarshal").Error())
+				return
+			}
+			
+		} else if len(id) > 1 {
+			res, _, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/%s/%s", types.QuerierRoute, types.QueryProperty, id), nil)
+			if err != nil {
+				rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
+				return
+			}
+			if len(res) == 0 {
+				rest.WriteErrorResponse(w, http.StatusInternalServerError, errors.New("response bytes are empty").Error())
+				return
+			}
+			
+			var property types.Property
+			if err := cliCtx.Codec.UnmarshalJSON(res, &property); err != nil {
+				rest.WriteErrorResponse(w, http.StatusInternalServerError, errors.New("error occurs while unmarshal").Error())
+				return
+			}
+			properties = append(properties, property)
+		} else {
+			
+			resKVs, _, err := cliCtx.QuerySubspace([]byte{0x01}, types.ModuleName)
+			if err != nil {
+				rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
+				return
+			}
+			
+			for _, pair := range resKVs {
+				var property types.Property
+				cliCtx.Codec.MustUnmarshalBinaryBare(pair.Value, &property)
+				properties = append(properties, property)
+			}
 		}
-
-		var properties []types.Property
-		ctx.Codec.MustUnmarshalJSON(bz, &properties)
-
-		rest.PostProcessResponse(w, ctx, properties)
-		return
+		
+		rest.PostProcessResponse(w, cliCtx, properties)
 	}
 }
