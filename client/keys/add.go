@@ -41,7 +41,7 @@ func AddKeysRequestHandler(clientCtx context.CLIContext) http.HandlerFunc {
 			return
 		}
 		
-		kr, err := keyring.New("dharani", keyring.BackendTest, app.DefaultNodeHome, os.Stdin)
+		kr, err := keyring.New("dharani", keyring.BackendOS, app.DefaultNodeHome, os.Stdin)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 			return
