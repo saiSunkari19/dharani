@@ -34,7 +34,7 @@ func SignAndBroadcast(br rest.BaseReq, cliCtx context.CLIContext,
 		return nil, err
 	}
 	
-	kr, err := keyring.New("dharani", viper.GetString(flags.FlagKeyringBackend), viper.GetString(flags.FlagHome), os.Stdin)
+	kr, err := keyring.New("dharani", keyring.BackendOS, app.DefaultNodeHome,, os.Stdin)
 	if err != nil {
 		return nil, err
 	}
