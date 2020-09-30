@@ -14,19 +14,12 @@ import (
 func NewQuerier(k Keeper) sdk.Querier {
 	return func(ctx sdk.Context, path []string, req abci.RequestQuery) ([]byte, error) {
 		switch path[0] {
-		// this line is used by starport scaffolding # 2
 		case types.QueryProperty:
-			{
-				return queryProperty(ctx, path[1:], k)
-			}
+			return queryProperty(ctx, path[1:], k)
 		case types.QueryAllProperties:
-			{
-				return queryAllProperties(ctx, k)
-			}
+			return queryAllProperties(ctx, k)
 		case types.QueryPropertyByAddr:
-			{
-				return queryPropertyByAddress(ctx, path[1:], k)
-			}
+			return queryPropertyByAddress(ctx, path[1:], k)
 		default:
 			return nil, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "unknown dharani query endpoint")
 		}
