@@ -29,7 +29,7 @@ func BuildSignBroadcast(w http.ResponseWriter, br rest.BaseReq, cliCtx context.C
 		return
 	}
 
-	kr, err := keyring.New("dharani", viper.GetString(flags.FlagKeyringBackend),
+	kr, err := keyring.New("dharani", keyring.BackendTest,
 		viper.GetString(flags.FlagHome), os.Stdin)
 	if err != nil {
 		rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
