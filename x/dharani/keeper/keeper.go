@@ -17,7 +17,6 @@ type Keeper struct {
 	CoinKeeper bank.Keeper
 	storeKey   sdk.StoreKey
 	cdc        *codec.Codec
-	// paramspace types.ParamSubspace
 }
 
 // NewKeeper creates a dharani keeper
@@ -26,7 +25,6 @@ func NewKeeper(coinKeeper bank.Keeper, cdc *codec.Codec, key sdk.StoreKey) Keepe
 		CoinKeeper: coinKeeper,
 		storeKey:   key,
 		cdc:        cdc,
-		// paramspace: paramspace.WithKeyTable(types.ParamKeyTable()),
 	}
 	return keeper
 }

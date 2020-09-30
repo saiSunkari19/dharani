@@ -10,9 +10,9 @@ import (
 var _ sdk.Msg = (*MsgAddProperty)(nil)
 
 type MsgAddProperty struct {
-	From     sdk.AccAddress
-	Area     uint64
-	Location string
+	From     sdk.AccAddress `json:"from"`
+	Area     uint64         `json:"area"`
+	Location string         `json:"location"`
 }
 
 func (msg MsgAddProperty) Type() string {
@@ -56,10 +56,10 @@ func NewMsgAddProperty(from sdk.AccAddress, area uint64, location string) *MsgAd
 var _ sdk.Msg = (*MsgSellProperty)(nil)
 
 type MsgSellProperty struct {
-	From      sdk.AccAddress
-	PropID    types.PropertyID
-	Area      uint64
-	PerSqCost sdk.Coin
+	From      sdk.AccAddress   `json:"from"`
+	PropID    types.PropertyID `json:"prop_id"`
+	Area      uint64           `json:"area"`
+	PerSqCost sdk.Coin         `json:"per_sq_cost"`
 }
 
 func (msg MsgSellProperty) Type() string {
@@ -104,9 +104,9 @@ func NewMsgSellProperty(from sdk.AccAddress, id types.PropertyID, area uint64, c
 var _ sdk.Msg = (*MsgBuyProperty)(nil)
 
 type MsgBuyProperty struct {
-	From   sdk.AccAddress
-	PropID types.PropertyID
-	Area   uint64
+	From   sdk.AccAddress   `json:"from"`
+	PropID types.PropertyID `json:"prop_id"`
+	Area   uint64           `json:"area"`
 }
 
 func (msg MsgBuyProperty) Type() string {
