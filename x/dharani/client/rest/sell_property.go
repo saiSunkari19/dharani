@@ -45,11 +45,13 @@ func sellPropertyHandlerFunc(ctx context.CLIContext) http.HandlerFunc {
 		id, err := types2.NewPropertyIDFromString(req.ID)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			return
 		}
 		
 		price, err := sdk.ParseCoin(req.Price)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			return
 		}
 		
 		msg := types.NewMsgSellProperty(fromAddress, id, req.Area, price)
