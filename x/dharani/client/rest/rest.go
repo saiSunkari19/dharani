@@ -12,6 +12,6 @@ func RegisterRoutes(cliCtx context.CLIContext, r *mux.Router) {
 	
 	r.HandleFunc("/property", getPropertyHandlerFunc(cliCtx)).Methods("GET")
 	r.HandleFunc("/property/add", addPropertyHandlerFunc(cliCtx)).Methods("POST")
-	r.HandleFunc("/property/sell", sellPropertyHandlerFunc(cliCtx)).Methods("PUT")
-	r.HandleFunc("/property/buy", buyPropertyHandlerFunc(cliCtx)).Methods("PUT")
+	r.HandleFunc("/property/sell", sellPropertyHandlerFunc(cliCtx)).Methods("POST")
+	r.HandleFunc("/property/buy", buyPropertyHandlerFunc(cliCtx)).Methods("POST")
 }

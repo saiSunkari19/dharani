@@ -41,7 +41,7 @@ func AddKeysRequestHandler(clientCtx context.CLIContext) http.HandlerFunc {
 			return
 		}
 
-		kr, err := keyring.New("dharani", viper.GetString(flags.FlagKeyringBackend),
+		kr, err := keyring.New("dharani", keyring.BackendTest,
 			viper.GetString(flags.FlagHome), os.Stdin)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
@@ -100,7 +100,7 @@ func GetKeyRequestHandler(cliCtx context.CLIContext) http.HandlerFunc {
 		vars := mux.Vars(r)
 		name := vars["name"]
 
-		kr, err := keyring.New("dharani", viper.GetString(flags.FlagKeyringBackend),
+		kr, err := keyring.New("dharani", keyring.BackendTest,
 			viper.GetString(flags.FlagHome), os.Stdin)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
