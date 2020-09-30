@@ -60,7 +60,7 @@ func handlerSellProperty(ctx sdk.Context, k Keeper, msg types.MsgSellProperty) (
 		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "unauthorised")
 	}
 	if property.Area < msg.Area {
-		return nil, sdkerrors.Wrap(ErrInvalidArea, "")
+		return nil, sdkerrors.Wrap(ErrInvalidArea, "cannot sell property more than you have")
 	}
 	
 	pc := k.GetPropertyCount(ctx)
@@ -96,7 +96,7 @@ func handlerBuyProperty(ctx sdk.Context, k Keeper, msg types.MsgBuyProperty) (*s
 		return nil, sdkerrors.Wrap(ErrInvalidType, "property unavailable")
 	}
 	if msg.Area > property.Area {
-		return nil, sdkerrors.Wrap(ErrInvalidArea, "buyer property exceeds the limit")
+		return nil, sdkerrors.Wrap(ErrInvalidArea, "buying property exceeds the limit")
 	}
 	amount := msg.Area * property.PerSqCost.Amount.Uint64()
 	deductAmount := sdk.NewInt64Coin(property.PerSqCost.Denom, int64(amount))
