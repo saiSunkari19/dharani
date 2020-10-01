@@ -24,12 +24,10 @@ func faucetHandler(cliCtx context.CLIContext) http.HandlerFunc {
 		if decoderErr != nil {
 			log.Println(decoderErr)
 		}
-		// make sure address is bech32
 		readableAddress, decodedAddress, decodeErr := bech32.DecodeAndConvert(claim.Address)
 		if decodeErr != nil {
 			log.Println(decodeErr)
 		}
-		// re-encode the address in bech32
 		encodedAddress, encodeErr := bech32.ConvertAndEncode(readableAddress, decodedAddress)
 		if encodeErr != nil {
 			log.Println(encodeErr)

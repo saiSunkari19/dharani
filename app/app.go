@@ -56,9 +56,7 @@ var (
 		transfer.AppModuleBasic{},
 		
 		dharani.AppModuleBasic{},
-		
-		
-		// this line is used by starport scaffolding # 2
+	
 	)
 	
 	maccPerms = map[string][]string{
@@ -104,12 +102,8 @@ type NewApp struct {
 	transferKeeper   transfer.Keeper
 	dharaniKeeper    dharani.Keeper
 	
-	// this line is used by starport scaffolding # 3
-	
 	scopedIBCKeeper      capability.ScopedKeeper
 	scopedTransferKeeper capability.ScopedKeeper
-	
-	// this line is used by starport scaffolding # 4
 	
 	mm *module.Manager
 	
@@ -141,8 +135,7 @@ func NewInitApp(
 		capability.StoreKey,
 		
 		dharani.StoreKey,
-		
-		// this line is used by starport scaffolding # 5
+	
 	
 	)
 	
@@ -172,7 +165,6 @@ func NewInitApp(
 	app.capabilityKeeper = capability.NewKeeper(appCodec, keys[capability.StoreKey], memKeys[capability.MemStoreKey])
 	scopedIBCKeeper := app.capabilityKeeper.ScopeToModule(ibc.ModuleName)
 	scopedTransferKeeper := app.capabilityKeeper.ScopeToModule(transfer.ModuleName)
-	// this line is used by starport scaffolding # 6
 	
 	app.accountKeeper = auth.NewAccountKeeper(
 		appCodec,
@@ -238,11 +230,8 @@ func NewInitApp(
 	
 	transferModule := transfer.NewAppModule(app.transferKeeper)
 	
-	// this line is used by starport scaffolding # 7
-	
 	ibcRouter := port.NewRouter()
 	ibcRouter.AddRoute(transfer.ModuleName, transferModule)
-	// this line is used by starport scaffolding # 8
 	
 	app.ibcKeeper.SetRouter(ibcRouter)
 	
@@ -267,7 +256,6 @@ func NewInitApp(
 		dharani.NewAppModule(app.dharaniKeeper, app.bankKeeper),
 		
 		transferModule,
-		// this line is used by starport scaffolding # 9
 	
 	)
 	
@@ -292,8 +280,7 @@ func NewInitApp(
 		transfer.ModuleName,
 		
 		dharani.ModuleName,
-		
-		// this line is used by starport scaffolding # 10
+	
 	
 	)
 	
@@ -331,7 +318,6 @@ func NewInitApp(
 	
 	app.scopedIBCKeeper = scopedIBCKeeper
 	app.scopedTransferKeeper = scopedTransferKeeper
-	// this line is used by starport scaffolding # 11
 	
 	return app
 }

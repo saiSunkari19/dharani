@@ -5,13 +5,13 @@ import (
 )
 
 type Property struct {
-	ID          string
-	Area        uint64
-	Owner       sdk.AccAddress
-	Location    string
-	Type        string
-	RefProperty string
-	PerSqCost   sdk.Coin
+	ID          string         `json:"id"`
+	Area        uint64         `json:"area"`
+	Owner       sdk.AccAddress `json:"owner"`
+	Location    string         `json:"location"`
+	Type        string         `json:"type"`
+	RefProperty string         `json:"ref_property"`
+	PerSqCost   sdk.Coin       `json:"per_sq_cost"`
 }
 
 func NewProperty(id string, area uint64, owner sdk.AccAddress, location string,

@@ -85,7 +85,7 @@ func BuildSignBroadcast(w http.ResponseWriter, br rest.BaseReq, cliCtx context.C
 	txBytes, err := txBldr.BuildAndSign(cliCtx.GetFromName(), password, msgs)
 	if err != nil {
 		rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
-		
+		return
 	}
 	
 	res, err := cliCtx.BroadcastTx(txBytes)

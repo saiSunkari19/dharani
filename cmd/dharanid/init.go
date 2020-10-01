@@ -33,7 +33,6 @@ func initGenesis(cdc codec.JSONMarshaler, genDoc *types.GenesisDoc, stakeDenom s
 		return appState, errors.Wrap(err, "failed to JSON unmarshal initial genesis state")
 	}
 	
-	// migrate staking state
 	if appState[staking.ModuleName] != nil {
 		var stakingGenState staking.GenesisState
 		err := cdc.UnmarshalJSON(appState[staking.ModuleName], &stakingGenState)
@@ -43,7 +42,7 @@ func initGenesis(cdc codec.JSONMarshaler, genDoc *types.GenesisDoc, stakeDenom s
 		stakingGenState.Params.BondDenom = stakeDenom
 		appState[staking.ModuleName] = cdc.MustMarshalJSON(stakingGenState)
 	}
-	// migrate crisis state
+	
 	if appState[crisis.ModuleName] != nil {
 		var crisisGenState crisis.GenesisState
 		err := cdc.UnmarshalJSON(appState[crisis.ModuleName], &crisisGenState)
@@ -54,7 +53,6 @@ func initGenesis(cdc codec.JSONMarshaler, genDoc *types.GenesisDoc, stakeDenom s
 		appState[crisis.ModuleName] = cdc.MustMarshalJSON(crisisGenState)
 	}
 	
-	// migrate gov state
 	if appState[gov.ModuleName] != nil {
 		var govGenState gov.GenesisState
 		err := cdc.UnmarshalJSON(appState[gov.ModuleName], &govGenState)
