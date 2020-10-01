@@ -5,16 +5,19 @@ import (
 	// abci "github.com/tendermint/tendermint/abci/types"
 )
 
-// InitGenesis initialize default parameters
-// and the keeper's address to pubkey map
-func InitGenesis(ctx sdk.Context, k Keeper /* TODO: Define what keepers the module needs */, data GenesisState) {
-	// TODO: Define logic for when you would like to initalize a new genesis
+func InitGenesis(ctx sdk.Context, k Keeper, data GenesisState) {
+	for _, property := range data.Properties {
+		k.SetProperty(ctx, property.ID, property)
+	}
 }
 
-// ExportGenesis writes the current store values
-// to a genesis file, which can be imported again
-// with InitGenesis
 func ExportGenesis(ctx sdk.Context, k Keeper) (data GenesisState) {
-	// TODO: Define logic for exporting state
-	return NewGenesisState()
+	return ExportGenesisState(ctx, k)
+}
+
+func ExportGenesisState(ctx sdk.Context, k Keeper) GenesisState {
+	properties := k.GetAllProperties(ctx)
+	return GenesisState{
+		Properties: properties,
+	}
 }

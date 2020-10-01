@@ -2,7 +2,7 @@ package types
 
 // GenesisState - all dharani state that must be provided at genesis
 type GenesisState struct {
-	// TODO: Fill out what is needed by the module for genesis
+	Properties []Property
 }
 
 // NewGenesisState creates a new GenesisState object
@@ -24,3 +24,4 @@ func ValidateGenesis(data GenesisState) error {
 	// TODO: Create a sanity check to make sure the state conforms to the modules needs
 	return nil
 }
+
