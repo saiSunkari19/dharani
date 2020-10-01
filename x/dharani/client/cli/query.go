@@ -16,9 +16,7 @@ import (
 	"github.com/dharani/x/dharani/types"
 )
 
-// GetQueryCmd returns the cli query commands for this module
 func GetQueryCmd(queryRoute string, cdc *codec.Codec) *cobra.Command {
-	// Group dharani queries under a subcommand
 	dharaniQueryCmd := &cobra.Command{
 		Use:   "property",
 		Short: "property query sub commands",

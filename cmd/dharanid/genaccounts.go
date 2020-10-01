@@ -30,7 +30,6 @@ const (
 	flagVestingAmt   = "vesting-amount"
 )
 
-// AddGenesisAccountCmd returns add-genesis-account cobra Command.
 func AddGenesisAccountCmd(
 	ctx *server.Context, depCdc *amino.Codec, cdc *codecstd.Codec, defaultNodeHome, defaultClientHome string,
 ) *cobra.Command {
@@ -51,7 +50,6 @@ contain valid denominations. Accounts may optionally be supplied with vesting pa
 			addr, err := sdk.AccAddressFromBech32(args[0])
 			inBuf := bufio.NewReader(cmd.InOrStdin())
 			if err != nil {
-				// attempt to lookup address from Keybase if no address was provided
 				kb, err := keyring.New(
 					sdk.KeyringServiceName(),
 					viper.GetString(flags.FlagKeyringBackend),
@@ -82,7 +80,6 @@ contain valid denominations. Accounts may optionally be supplied with vesting pa
 				return fmt.Errorf("failed to parse vesting amount: %w", err)
 			}
 			
-			// create concrete account type based on input parameters
 			var genAccount authexported.GenesisAccount
 			
 			balances := bank.Balance{Address: addr, Coins: coins.Sort()}
@@ -135,8 +132,6 @@ contain valid denominations. Accounts may optionally be supplied with vesting pa
 			bankGenState.Balances = append(bankGenState.Balances, balance)
 			bankGenState.Balances = bank.SanitizeGenesisBalances(bankGenState.Balances)
 			
-			// Add the new account to the set of genesis accounts and sanitize the
-			// accounts afterwards.
 			authGenState.Accounts = append(authGenState.Accounts, genAccount)
 			authGenState.Accounts = auth.SanitizeGenesisAccounts(authGenState.Accounts)
 			
