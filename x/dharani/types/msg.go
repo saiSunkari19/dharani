@@ -2,8 +2,6 @@ package types
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	
 	"github.com/dharani/types"
 )
 
@@ -23,13 +21,13 @@ func (msg MsgAddProperty) ValidateBasic() error {
 	if msg.From == nil || msg.From.Empty() {
 		return ErrInvalidFromAddress
 	}
-	if msg.Area < 0 {
+	if msg.Area <= 0 {
 		return ErrInvalidArea
 	}
 	if msg.Location == "" {
 		return ErrInvalidLocation
 	}
-	
+
 	return nil
 }
 
@@ -70,13 +68,13 @@ func (msg MsgSellProperty) ValidateBasic() error {
 	if msg.From == nil || msg.From.Empty() {
 		return ErrInvalidFromAddress
 	}
-	if msg.Area < 0 {
+	if msg.Area <= 0 {
 		return ErrInvalidArea
 	}
 	if msg.PerSqCost.Amount.Int64() < 0 {
 		return ErrInvalidCost
 	}
-	
+
 	return nil
 }
 
@@ -117,11 +115,11 @@ func (msg MsgBuyProperty) ValidateBasic() error {
 	if msg.From == nil || msg.From.Empty() {
 		return ErrInvalidFromAddress
 	}
-	
-	if msg.Area == 0 {
-		return sdkerrors.Wrap(ErrInvalidField, "area")
+
+	if msg.Area <= 0 {
+		return ErrInvalidField
 	}
-	
+
 	return nil
 }
 

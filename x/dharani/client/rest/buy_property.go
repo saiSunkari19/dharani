@@ -2,12 +2,11 @@ package rest
 
 import (
 	"net/http"
-	
-	types2 "github.com/dharani/types"
-	
+
 	rest2 "github.com/dharani/client/rest"
+	types2 "github.com/dharani/types"
 	"github.com/dharani/x/dharani/types"
-	
+
 	"github.com/cosmos/cosmos-sdk/client/context"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/rest"
@@ -25,28 +24,33 @@ type msgBuyProperty struct {
 func buyPropertyHandlerFunc(ctx context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req msgBuyProperty
-		
+
 		if !rest.ReadRESTReq(w, r, ctx.Codec, &req) {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, "error while validating req body")
 			return
 		}
-		
+
 		req.BaseReq = req.BaseReq.Sanitize()
 		if !req.BaseReq.ValidateBasic(w) {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, "error while validating req body")
 			return
 		}
-		
+		if req.Area <= 0 {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, "invalid area")
+			return
+		}
 		fromAddress, err := sdk.AccAddressFromBech32(req.BaseReq.From)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		
+
 		id, err := types2.NewPropertyIDFromString(req.ID)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		
+
 		msg := types.NewMsgBuyProperty(fromAddress, id, req.Area)
 		if err := msg.ValidateBasic(); err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())

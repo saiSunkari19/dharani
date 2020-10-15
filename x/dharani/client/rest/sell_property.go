@@ -2,12 +2,12 @@ package rest
 
 import (
 	"net/http"
-	
+
 	types2 "github.com/dharani/types"
-	
+
 	rest2 "github.com/dharani/client/rest"
 	"github.com/dharani/x/dharani/types"
-	
+
 	"github.com/cosmos/cosmos-sdk/client/context"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/rest"
@@ -26,34 +26,39 @@ type msgSellProperty struct {
 func sellPropertyHandlerFunc(ctx context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req msgSellProperty
-		
+
 		if !rest.ReadRESTReq(w, r, ctx.Codec, &req) {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, "error while validating req body")
 			return
 		}
-		
+
 		req.BaseReq = req.BaseReq.Sanitize()
 		if !req.BaseReq.ValidateBasic(w) {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, "error while validating basereq body")
 			return
 		}
-		
+		if req.Area <= 0 {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, "invalid area")
+			return
+		}
 		fromAddress, err := sdk.AccAddressFromBech32(req.BaseReq.From)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		
+
 		id, err := types2.NewPropertyIDFromString(req.ID)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		
+
 		price, err := sdk.ParseCoin(req.Price)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		
+
 		msg := types.NewMsgSellProperty(fromAddress, id, req.Area, price)
 		if err := msg.ValidateBasic(); err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
