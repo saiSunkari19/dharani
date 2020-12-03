@@ -22,7 +22,7 @@ func (msg MsgAddProperty) ValidateBasic() error {
 		return ErrInvalidFromAddress
 	}
 	if msg.Area <= 0 {
-		return ErrInvalidArea
+		return ErrInvalidShares
 	}
 	if msg.Location == "" {
 		return ErrInvalidLocation
@@ -56,7 +56,7 @@ var _ sdk.Msg = (*MsgSellProperty)(nil)
 type MsgSellProperty struct {
 	From      sdk.AccAddress   `json:"from"`
 	PropID    types.PropertyID `json:"prop_id"`
-	Area      uint64           `json:"area"`
+	Shares    uint64           `json:"shares"`
 	PerSqCost sdk.Coin         `json:"per_sq_cost"`
 }
 
@@ -68,8 +68,8 @@ func (msg MsgSellProperty) ValidateBasic() error {
 	if msg.From == nil || msg.From.Empty() {
 		return ErrInvalidFromAddress
 	}
-	if msg.Area <= 0 {
-		return ErrInvalidArea
+	if msg.Shares <= 0 {
+		return ErrInvalidShares
 	}
 	if msg.PerSqCost.Amount.Int64() < 0 {
 		return ErrInvalidCost
@@ -93,9 +93,56 @@ func (msg MsgSellProperty) Route() string {
 func NewMsgSellProperty(from sdk.AccAddress, id types.PropertyID, area uint64, cost sdk.Coin) *MsgSellProperty {
 	return &MsgSellProperty{
 		From:      from,
-		Area:      area,
+		Shares:    area,
 		PropID:    id,
 		PerSqCost: cost,
+	}
+}
+
+var _ sdk.Msg = (*MsgUpdateMarketProperty)(nil)
+
+type MsgUpdateMarketProperty struct {
+	From        sdk.AccAddress   `json:"from"`
+	PropID      types.PropertyID `json:"prop_id"`
+	PerSqFtCost sdk.Coin         `json:"per_sq_ft_cost"`
+}
+
+func (msg MsgUpdateMarketProperty) Type() string {
+	return "update_market_property"
+}
+
+func (msg MsgUpdateMarketProperty) ValidateBasic() error {
+	if msg.From == nil || msg.From.Empty() {
+		return ErrInvalidFromAddress
+	}
+
+	if msg.PropID.String() != "" {
+		return ErrInvalidField
+	}
+	if !msg.PerSqFtCost.IsValid() {
+		return ErrInvalidField
+	}
+
+	return nil
+}
+
+func (msg MsgUpdateMarketProperty) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+}
+
+func (msg MsgUpdateMarketProperty) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{msg.From}
+}
+
+func (msg MsgUpdateMarketProperty) Route() string {
+	return RouterKey
+}
+
+func NewMsgUpdateMarketProperty(from sdk.AccAddress, id types.PropertyID, cost sdk.Coin) *MsgUpdateMarketProperty {
+	return &MsgUpdateMarketProperty{
+		From:        from,
+		PropID:      id,
+		PerSqFtCost: cost,
 	}
 }
 
@@ -104,7 +151,7 @@ var _ sdk.Msg = (*MsgBuyProperty)(nil)
 type MsgBuyProperty struct {
 	From   sdk.AccAddress   `json:"from"`
 	PropID types.PropertyID `json:"prop_id"`
-	Area   uint64           `json:"area"`
+	Shares uint64           `json:"shares"`
 }
 
 func (msg MsgBuyProperty) Type() string {
@@ -116,7 +163,7 @@ func (msg MsgBuyProperty) ValidateBasic() error {
 		return ErrInvalidFromAddress
 	}
 
-	if msg.Area <= 0 {
+	if msg.Shares <= 0 {
 		return ErrInvalidField
 	}
 
@@ -139,6 +186,6 @@ func NewMsgBuyProperty(from sdk.AccAddress, id types.PropertyID, area uint64) *M
 	return &MsgBuyProperty{
 		From:   from,
 		PropID: id,
-		Area:   area,
+		Shares: area,
 	}
 }

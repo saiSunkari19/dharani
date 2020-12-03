@@ -2,8 +2,6 @@ package dharani
 
 import (
 	"fmt"
-	"strings"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
@@ -19,6 +17,8 @@ func NewHandler(k Keeper) sdk.Handler {
 			return handlerAddProperty(ctx, k, msg)
 		case types.MsgSellProperty:
 			return handlerSellProperty(ctx, k, msg)
+		case types.MsgUpdateMarketProperty:
+			return handlerUpdateMarketProperty(ctx, k, msg)
 		case types.MsgBuyProperty:
 			return handlerBuyProperty(ctx, k, msg)
 		default:
@@ -33,9 +33,10 @@ func handlerAddProperty(ctx sdk.Context, k Keeper, msg types.MsgAddProperty) (*s
 
 	id := GetPropertyID(pc)
 	property := types.NewProperty(id, msg.Area, msg.From, msg.Location,
-		types.TypeOwn, "", sdk.Coin{})
+		types.TypeOwn, sdk.Coin{})
 
-	k.SetProperty(ctx, id, property)
+	key := types.GetPropertyKey(property.Owner, []byte(id))
+	k.SetProperty(ctx, key, property)
 	k.SetPropertyCount(ctx, pc+1)
 
 	ctx.EventManager().EmitEvent(
@@ -50,7 +51,8 @@ func handlerAddProperty(ctx sdk.Context, k Keeper, msg types.MsgAddProperty) (*s
 }
 
 func handlerSellProperty(ctx sdk.Context, k Keeper, msg types.MsgSellProperty) (*sdk.Result, error) {
-	property := k.GetProperty(ctx, msg.PropID.String())
+	key := types.GetPropertyKey(msg.From, msg.PropID)
+	property := k.GetProperty(ctx, key)
 
 	if property == nil {
 		return nil, sdkerrors.Wrap(ErrInvalidId, "property doesn't exist")
@@ -58,49 +60,75 @@ func handlerSellProperty(ctx sdk.Context, k Keeper, msg types.MsgSellProperty) (
 	if !property.Owner.Equals(msg.From) {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "unauthorised")
 	}
-	if property.Area < msg.Area {
+	if property.RemainingShares < msg.Shares {
 		return nil, sdkerrors.Wrap(ErrInvalidArea, "cannot sell property more than you have")
 	}
 
-	pc := k.GetPropertyCount(ctx)
-	id := GetPropertyID(pc)
+	pc := k.GetMarketPlacePropertyCount(ctx)
+	uniqueID := GetPropertyID(pc)
 
-	sellProperty := types.NewProperty(id, msg.Area, property.Owner,
-		property.Location, types.TypeSell, property.ID, msg.PerSqCost)
+	sellProperty := property.NewMarketPlaceProperty(uniqueID, msg.Shares, types.TypeBought, msg.PerSqCost)
 
-	property.Area = property.Area - msg.Area
+	property.RemainingShares = property.RemainingShares - msg.Shares
 
-	k.SetProperty(ctx, property.ID, *property)
-	k.SetProperty(ctx, id, sellProperty)
-	k.SetPropertyCount(ctx, pc+1)
+	k.SetProperty(ctx, key, *property)
+
+	key = types.GetMarketPlacePropertyKey([]byte(uniqueID))
+
+	k.SetProperty(ctx, key, sellProperty)
+	k.SetMarketPalcePropertyCount(ctx, pc+1)
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			EventTypeMsgSellProperty,
 			sdk.NewAttribute(AttributeKeyFromAddress, property.Owner.String()),
-			sdk.NewAttribute(AttributeKeyPropertyID, id),
+			sdk.NewAttribute(AttributeKeyPropertyID, uniqueID),
 		),
 	)
 
 	return &sdk.Result{Events: ctx.EventManager().Events().ToABCIEvents()}, nil
 }
 
-func handlerBuyProperty(ctx sdk.Context, k Keeper, msg types.MsgBuyProperty) (*sdk.Result, error) {
-	property := k.GetProperty(ctx, msg.PropID.String())
+func handlerUpdateMarketProperty(ctx sdk.Context, k Keeper, msg types.MsgUpdateMarketProperty) (*sdk.Result, error) {
+	key := types.GetMarketPlacePropertyKey(msg.PropID)
+	property := k.GetProperty(ctx, key)
 
 	if property == nil {
 		return nil, sdkerrors.Wrap(ErrInvalidId, "property doesn't exist")
 	}
-	if strings.Compare(property.Type, types.TypeSell) != 0 {
-		return nil, sdkerrors.Wrap(ErrInvalidType, "property unavailable")
+
+	property.PerSqFtCost = msg.PerSqFtCost
+
+	k.SetProperty(ctx, key, *property)
+
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			EventTypeMsgSellProperty,
+			sdk.NewAttribute(AttributeKeyFromAddress, property.Owner.String()),
+			sdk.NewAttribute(AttributeKeyPropertyID, property.ID),
+		),
+	)
+
+	return &sdk.Result{Events: ctx.EventManager().Events().ToABCIEvents()}, nil
+
+}
+
+func handlerBuyProperty(ctx sdk.Context, k Keeper, msg types.MsgBuyProperty) (*sdk.Result, error) {
+	key := types.GetMarketPlacePropertyKey(msg.PropID)
+	property := k.GetProperty(ctx, key)
+
+	if property == nil {
+		return nil, sdkerrors.Wrap(ErrInvalidId, "property doesn't exist")
 	}
-	if msg.Area > property.Area {
+
+	if msg.Shares > property.RemainingShares {
 		return nil, sdkerrors.Wrap(ErrInvalidArea, "buying property exceeds the limit")
 	}
-	amount := msg.Area * property.PerSqCost.Amount.Uint64()
-	deductAmount := sdk.NewInt64Coin(property.PerSqCost.Denom, int64(amount))
 
-	bal := k.CoinKeeper.GetBalance(ctx, msg.From, property.PerSqCost.Denom)
+	amount := msg.Shares * property.PerSqFtCost.Amount.Uint64()
+	deductAmount := sdk.NewInt64Coin(property.PerSqFtCost.Denom, int64(amount))
+
+	bal := k.CoinKeeper.GetBalance(ctx, msg.From, property.PerSqFtCost.Denom)
 	if bal.IsLT(deductAmount) {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrInsufficientFunds, "to buy property")
 	}
@@ -115,16 +143,28 @@ func handlerBuyProperty(ctx sdk.Context, k Keeper, msg types.MsgBuyProperty) (*s
 		return nil, err
 	}
 
+	property.RemainingShares = property.RemainingShares - msg.Shares
+	k.SetProperty(ctx, key, *property)
+
 	pc := k.GetPropertyCount(ctx)
 	id := GetPropertyID(pc)
 
-	buyProperty := types.NewProperty(id, msg.Area, msg.From, property.Location,
-		types.TypeOwn, property.ID, sdk.Coin{})
+	buyProperty := types.NewProperty(id, msg.Shares, msg.From, property.Location,
+		types.TypeOwn, sdk.Coin{})
+	buyProperty.CostAtBought = property.PerSqFtCost
 
-	property.Area = property.Area - msg.Area
-	k.SetProperty(ctx, property.ID, *property)
-	k.SetProperty(ctx, id, buyProperty)
+	key = types.GetPropertyKey(msg.From, []byte(id))
+	k.SetProperty(ctx, key, buyProperty)
 	k.SetPropertyCount(ctx, pc+1)
+
+	key = types.GetPropertyBoughtKey([]byte(property.ID))
+	k.SetProperty(ctx, key, buyProperty)
+
+	key = types.GetPropertyKey(msg.From, []byte(property.ID))
+	property = k.GetProperty(ctx, key)
+	property.SoldShares = msg.Shares
+
+	k.SetProperty(ctx, key, *property)
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(

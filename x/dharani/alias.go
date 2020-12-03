@@ -30,7 +30,7 @@ var (
 	AttributeKeyPropertyID  = types.AttributeKeyPropertyID
 	PropertyKey             = types.PropertyKey
 	
-	ErrInvalidArea     = types.ErrInvalidArea
+	ErrInvalidArea     = types.ErrInvalidShares
 	ErrInvalidLocation = types.ErrInvalidLocation
 	ErrInvalidType     = types.ErrInvalidType
 	ErrInvalidCost     = types.ErrInvalidCost
