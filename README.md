@@ -46,7 +46,7 @@ More [Videos](docs/assets/1.-assets.md)
 
 ### Highlights 🌠 
 
-Winners of [HackAtom India](https://www.hackerearth.com/challenges/hackathon/hackatom-india), grab the  **Cosmonaut Award** 🏆 
+Winners of [HackAtom India](https://www.hackerearth.com/challenges/hackathon/hackatom-india), grab the  **Cosmonaut Award** 🏆 for Open Innovation Theme. 
 
 
 
