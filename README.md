@@ -42,17 +42,7 @@ we hosted [Dharani](https://dharani.multiverse.tk/), to test.
 
 More [Videos](docs/assets/1.-assets.md)
 
-## Documentation
+## [Documentation](https://docs.dharani.multiverse.tk) 
 
-This documentation provides you brief about the project, with technical documentation
 
-#### [1. Security Tokens](docs/1.-dharani-real-estate-tokenization.md)
-
-#### [2. Real Estate Tokenization](docs/2.-real-estate-tokenization.md)
-
-#### [3. Technical Documentation](docs/3.-technical-overview.md)
-
-#### [4. API Documentation](docs/4.-api-docs.md)
-
-While using the application, if you have any questions or find a bug, feel free to open an issue in the repo.
 
