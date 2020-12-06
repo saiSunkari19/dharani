@@ -1,6 +1,6 @@
 # Dharani
 
-[Nextdocs](https://app.gitbook.com/@saisunkari19/s/prithvidevs/~/drafts/-MNqqUeR4VU6QhsT5Ohk/docs)Selling fractional property aka Real Estate tokenization
+Selling fractional property aka Real Estate tokenization
 
 ## Overview
 
