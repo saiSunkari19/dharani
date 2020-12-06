@@ -42,7 +42,11 @@ we hosted [Dharani](https://dharani.multiverse.tk/), to test.
 
 More [Videos](docs/assets/1.-assets.md)
 
-## [Documentation](https://docs.dharani.multiverse.tk) 
+##   👉  [Documentation](https://docs.dharani.multiverse.tk) 
+
+### Highlights 🌠 
+
+Winners of [HackAtom India](https://www.hackerearth.com/challenges/hackathon/hackatom-india), grab the  **Cosmonaut Award** 🏆 
 
 
 
