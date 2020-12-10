@@ -51,7 +51,7 @@ func handlerAddProperty(ctx sdk.Context, k Keeper, msg types.MsgAddProperty) (*s
 }
 
 func handlerSellProperty(ctx sdk.Context, k Keeper, msg types.MsgSellProperty) (*sdk.Result, error) {
-	key := types.GetPropertyKey(msg.From, msg.PropID)
+	key := types.GetPropertyKey(msg.From, []byte(msg.PropID.String()))
 	property := k.GetProperty(ctx, key)
 
 	if property == nil {
