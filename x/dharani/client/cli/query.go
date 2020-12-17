@@ -2,6 +2,7 @@ package cli
 
 import (
 	"fmt"
+	"github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/cosmos/cosmos-sdk/client/context"
@@ -17,10 +18,24 @@ import (
 	"github.com/dharani/x/dharani/types"
 )
 
-func GetQueryCmd(queryRoute string, cdc *codec.Codec) *cobra.Command {
+func GetQueryCmd(cdc *codec.Codec) *cobra.Command {
 	dharaniQueryCmd := &cobra.Command{
-		Use:   "property [address] [id]",
-		Short: "property query sub commands",
+		Use:   types.ModuleName,
+		Short: "Querying commands for the property module",
+		RunE: client.ValidateCmd,
+	}
+
+	dharaniQueryCmd.AddCommand(
+		GetPropertyByAddressAndId(cdc),
+		GetMarketPlacePropertiesByUniqueId(cdc),
+		)
+	return dharaniQueryCmd
+}
+
+func GetPropertyByAddressAndId(cdc *codec.Codec) *cobra.Command {
+	cmd := &cobra.Command{
+		Use: "property [address] [id]",
+		Short: "Query a property based on a address and a property Id",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 
@@ -35,8 +50,7 @@ func GetQueryCmd(queryRoute string, cdc *codec.Codec) *cobra.Command {
 			return cliCtx.PrintOutput(property)
 		},
 	}
-
-	return flags.GetCommands(dharaniQueryCmd)[0]
+	return flags.GetCommands(cmd)[0]
 }
 
 func GetQueryMarketPlaceCmd(queryRoute string, cdc *codec.Codec) *cobra.Command {
@@ -57,7 +71,9 @@ func GetQueryMarketPlaceCmd(queryRoute string, cdc *codec.Codec) *cobra.Command 
 			return cliCtx.PrintOutput(property)
 		},
 	}
-
+	dharaniQueryCmd.AddCommand(
+		GetMarketPlacePropertiesByUniqueId(cdc),
+		)
 	return flags.GetCommands(dharaniQueryCmd)[0]
 }
 
@@ -123,5 +139,25 @@ func GetPropertiesByAddress(cdc *codec.Codec) *cobra.Command {
 		},
 	}
 
+	return flags.GetCommands(cmd)[0]
+}
+
+func GetMarketPlacePropertiesByUniqueId(cdc *codec.Codec) *cobra.Command {
+	cmd := &cobra.Command{
+		Use: "market-place [uniqueId]",
+		Short: "Query property listed in market place based on unique id",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cliCtx := context.NewCLIContext().WithCodec(cdc)
+
+			bz, _, err := cliCtx.QueryWithData(fmt.Sprintf("/custom/%s/%s/%s", types.QuerierRoute, types.QueryPropertyByUniqueID, args[0]), nil)
+			if err != nil {
+				return err
+			}
+
+			var property types.Property
+			cdc.MustUnmarshalJSON(bz, &property)
+			return cliCtx.PrintOutput(property)
+		},
+	}
 	return flags.GetCommands(cmd)[0]
 }

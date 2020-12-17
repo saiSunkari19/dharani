@@ -38,7 +38,7 @@ func NewProperty(id string, shares uint64, owner sdk.AccAddress, location string
 	}
 }
 
-func (p Property) NewMarketPlaceProperty(uniqueID string, shares uint64, _type string, perSqCost sdk.Coin) Property {
+func (p Property) NewMarketPlaceProperty(uniqueID string, shares uint64, perSqCost sdk.Coin) Property {
 	return Property{
 		ID:              p.ID,
 		UniqueID:        uniqueID,
@@ -47,7 +47,6 @@ func (p Property) NewMarketPlaceProperty(uniqueID string, shares uint64, _type s
 
 		Owner:    p.Owner,
 		Location: p.Location,
-		Type:     _type,
 
 		PerSqFtCost: perSqCost,
 	}

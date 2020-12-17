@@ -1,7 +1,8 @@
 package types
 
 const (
-	QueryProperty       = "queryProperty"
-	QueryAllProperties  = "queryAllProperties"
-	QueryPropertyByAddr = "queryPropertyByAddress"
+	QueryProperty           = "queryProperty"
+	QueryAllProperties      = "queryAllProperties"
+	QueryPropertyByAddr     = "queryPropertyByAddress"
+	QueryPropertyByUniqueID = "queryMarketPlacePropertyById"
 )

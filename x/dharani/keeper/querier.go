@@ -19,6 +19,9 @@ func NewQuerier(k Keeper) sdk.Querier {
 			return queryAllProperties(ctx, k)
 		case types.QueryPropertyByAddr:
 			return queryPropertyByAddress(ctx, path[1:], k)
+		case types.QueryPropertyByUniqueID:
+			return queryMarketPlacePropertyByUniqueId(ctx, path[1:], k)
+
 		default:
 			return nil, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "unknown dharani query endpoint")
 		}
@@ -67,6 +70,22 @@ func queryPropertyByAddress(ctx sdk.Context, path []string, k Keeper) ([]byte, e
 	properties := k.GetPropertyByAddress(ctx, addr)
 
 	bz, err := k.cdc.MarshalJSON(properties)
+	if err != nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
+	}
+
+	return bz, nil
+}
+
+func queryMarketPlacePropertyByUniqueId(ctx sdk.Context, path []string, k Keeper) ([]byte, error) {
+	propertyKey := types.GetMarketPlacePropertyKey([]byte(path[0]))
+	if propertyKey == nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "property not found in market-place with id")
+	}
+
+	property := k.GetProperty(ctx, propertyKey)
+
+	bz, err := k.cdc.MarshalJSON(property)
 	if err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
 	}

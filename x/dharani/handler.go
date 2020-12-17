@@ -4,6 +4,7 @@ import (
 	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/hashicorp/go-uuid"
 
 	"github.com/dharani/x/dharani/types"
 )
@@ -64,19 +65,22 @@ func handlerSellProperty(ctx sdk.Context, k Keeper, msg types.MsgSellProperty) (
 		return nil, sdkerrors.Wrap(ErrInvalidArea, "cannot sell property more than you have")
 	}
 
-	pc := k.GetMarketPlacePropertyCount(ctx)
-	uniqueID := GetPropertyID(pc)
+	//pc := k.GetMarketPlacePropertyCount(ctx)
+	uniqueID, err := uuid.GenerateUUID()
+	if err != nil {
+		return nil, err
+	}
 
-	sellProperty := property.NewMarketPlaceProperty(uniqueID, msg.Shares, types.TypeBought, msg.PerSqCost)
+	sellProperty := property.NewMarketPlaceProperty(uniqueID, msg.Shares, msg.PerSqCost)
 
 	property.RemainingShares = property.RemainingShares - msg.Shares
 
 	k.SetProperty(ctx, key, *property)
 
-	key = types.GetMarketPlacePropertyKey([]byte(uniqueID))
+	marketPlaceKey := types.GetMarketPlacePropertyKey([]byte(uniqueID))
 
-	k.SetProperty(ctx, key, sellProperty)
-	k.SetMarketPalcePropertyCount(ctx, pc+1)
+	k.SetProperty(ctx, marketPlaceKey, sellProperty)
+	//k.SetMarketPalcePropertyCount(ctx, pc+1)
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
