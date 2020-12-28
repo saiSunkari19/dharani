@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	rest2 "github.com/dharani/client/rest"
-	types2 "github.com/dharani/types"
 	"github.com/dharani/x/dharani/types"
 
 	"github.com/cosmos/cosmos-sdk/client/context"
@@ -45,13 +44,7 @@ func buyPropertyHandlerFunc(ctx context.CLIContext) http.HandlerFunc {
 			return
 		}
 
-		id, err := types2.NewPropertyIDFromString(req.ID)
-		if err != nil {
-			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
-			return
-		}
-
-		msg := types.NewMsgBuyProperty(fromAddress, id, req.Area)
+		msg := types.NewMsgBuyProperty(fromAddress, req.ID, req.Area)
 		if err := msg.ValidateBasic(); err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return

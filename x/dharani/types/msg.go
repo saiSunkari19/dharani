@@ -102,9 +102,9 @@ func NewMsgSellProperty(from sdk.AccAddress, id types.PropertyID, area uint64, c
 var _ sdk.Msg = (*MsgUpdateMarketProperty)(nil)
 
 type MsgUpdateMarketProperty struct {
-	From        sdk.AccAddress   `json:"from"`
-	PropID      types.PropertyID `json:"prop_id"`
-	PerSqFtCost sdk.Coin         `json:"per_sq_ft_cost"`
+	From        sdk.AccAddress `json:"from"`
+	UniqueID    string         `json:"unique_id"`
+	PerSqFtCost sdk.Coin       `json:"per_sq_ft_cost"`
 }
 
 func (msg MsgUpdateMarketProperty) Type() string {
@@ -116,7 +116,7 @@ func (msg MsgUpdateMarketProperty) ValidateBasic() error {
 		return ErrInvalidFromAddress
 	}
 
-	if msg.PropID.String() != "" {
+	if msg.UniqueID != "" {
 		return ErrInvalidField
 	}
 	if !msg.PerSqFtCost.IsValid() {
@@ -138,10 +138,10 @@ func (msg MsgUpdateMarketProperty) Route() string {
 	return RouterKey
 }
 
-func NewMsgUpdateMarketProperty(from sdk.AccAddress, id types.PropertyID, cost sdk.Coin) *MsgUpdateMarketProperty {
+func NewMsgUpdateMarketProperty(from sdk.AccAddress, id string, cost sdk.Coin) *MsgUpdateMarketProperty {
 	return &MsgUpdateMarketProperty{
 		From:        from,
-		PropID:      id,
+		UniqueID:    id,
 		PerSqFtCost: cost,
 	}
 }
@@ -149,9 +149,9 @@ func NewMsgUpdateMarketProperty(from sdk.AccAddress, id types.PropertyID, cost s
 var _ sdk.Msg = (*MsgBuyProperty)(nil)
 
 type MsgBuyProperty struct {
-	From   sdk.AccAddress   `json:"from"`
-	PropID types.PropertyID `json:"prop_id"`
-	Shares uint64           `json:"shares"`
+	From     sdk.AccAddress `json:"from"`
+	UniqueID string         `json:"unique_id"`
+	Shares   uint64         `json:"shares"`
 }
 
 func (msg MsgBuyProperty) Type() string {
@@ -182,10 +182,10 @@ func (msg MsgBuyProperty) Route() string {
 	return RouterKey
 }
 
-func NewMsgBuyProperty(from sdk.AccAddress, id types.PropertyID, area uint64) *MsgBuyProperty {
+func NewMsgBuyProperty(from sdk.AccAddress, id string, area uint64) *MsgBuyProperty {
 	return &MsgBuyProperty{
-		From:   from,
-		PropID: id,
+		From: from,
+		UniqueID: id,
 		Shares: area,
 	}
 }

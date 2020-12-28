@@ -6,4 +6,5 @@ const (
 	flagPropertyID = "property-id"
 	flagPrice      = "price"
 	flagNoOfSqFt   = "cost"
+	flagUniqueID   = "unique-id"
 )

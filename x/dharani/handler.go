@@ -94,7 +94,7 @@ func handlerSellProperty(ctx sdk.Context, k Keeper, msg types.MsgSellProperty) (
 }
 
 func handlerUpdateMarketProperty(ctx sdk.Context, k Keeper, msg types.MsgUpdateMarketProperty) (*sdk.Result, error) {
-	key := types.GetMarketPlacePropertyKey(msg.PropID)
+	key := types.GetMarketPlacePropertyKey([]byte(msg.UniqueID))
 	property := k.GetProperty(ctx, key)
 
 	if property == nil {
@@ -118,7 +118,7 @@ func handlerUpdateMarketProperty(ctx sdk.Context, k Keeper, msg types.MsgUpdateM
 }
 
 func handlerBuyProperty(ctx sdk.Context, k Keeper, msg types.MsgBuyProperty) (*sdk.Result, error) {
-	key := types.GetMarketPlacePropertyKey(msg.PropID)
+	key := types.GetMarketPlacePropertyKey([]byte(msg.UniqueID))
 	property := k.GetProperty(ctx, key)
 
 	if property == nil {
@@ -152,12 +152,12 @@ func handlerBuyProperty(ctx sdk.Context, k Keeper, msg types.MsgBuyProperty) (*s
 
 	pc := k.GetPropertyCount(ctx)
 	id := GetPropertyID(pc)
-
 	buyProperty := types.NewProperty(id, msg.Shares, msg.From, property.Location,
-		types.TypeOwn, sdk.Coin{})
+		types.TypeBought, sdk.Coin{})
 	buyProperty.CostAtBought = property.PerSqFtCost
 
 	key = types.GetPropertyKey(msg.From, []byte(id))
+
 	k.SetProperty(ctx, key, buyProperty)
 	k.SetPropertyCount(ctx, pc+1)
 
